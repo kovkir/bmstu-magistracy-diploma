@@ -2,11 +2,13 @@ from progress.bar import IncrementalBar
 
 
 class Node():
-    symbols: bytes
-    frequency: int
-    value: str
-
-    def __init__(self, symbols, frequency, left=None, right=None):
+    def __init__(
+        self, 
+        symbols: list[bytes], 
+        frequency: int, 
+        left=None, 
+        right=None
+    ):
         self.symbols = symbols
         self.frequency = frequency
         self.value = ""
@@ -16,87 +18,99 @@ class Node():
 
 
 class Tree():
-    tree: Node
-
-    def __init__(self, frequencyTable: dict):
+    def __init__(self, frequency_table: dict) -> None:
         self.nodes: list[Node] = list()
-        self.addNodes(frequencyTable)
+        self.__add_nodes(frequency_table)
 
-        self.tree = self.buildTree()
-        self.fillValueNode(self.tree)
+        self.tree = self.__build_tree()
+        self.__fill_node_value(self.tree)
 
-    def addNodes(self, frequencyTable: dict):
-        for key in frequencyTable.keys():
-            if frequencyTable[key] > 0:
+    def get_code_by_symbol(self, symbol: bytes) -> str:
+        return self.__find_code_by_symbol(
+            symbol=symbol, 
+            node=self.tree,
+        )
+    
+    def get_symbol_by_code(self, code: str) -> bytes:
+        return self.__find_symbol_by_code(
+            code=code, 
+            node=self.tree,
+        )
+
+    def __add_nodes(self, frequency_table: dict) -> None:
+        for key in frequency_table.keys():
+            if frequency_table[key] > 0:
                 self.nodes.append(
-                    Node(key, frequencyTable[key])
+                    Node(
+                        symbols=[key], 
+                        frequency=frequency_table[key],
+                    )
                 )
 
-    def indexMinElem(self) -> int:
-        iMinElem = 0
+    def __find_index_of_min_elem(self) -> int:
+        index = 0
         for i in range(1, len(self.nodes)):
-            if self.nodes[i].frequency < self.nodes[iMinElem].frequency:
-                iMinElem = i
+            if self.nodes[i].frequency < self.nodes[index].frequency:
+                index = i
 
-        return iMinElem
+        return index
 
-    def buildTree(self) -> Node:
+    def __build_tree(self) -> Node:
         print()
-        bar = IncrementalBar('Построение дерева Хаффмана', max = len(self.nodes) - 1)
+        bar = IncrementalBar(
+            'Построение дерева Хаффмана', 
+            max = len(self.nodes) - 1,
+        )
         while len(self.nodes) > 1:
-            firstNode = self.nodes.pop(self.indexMinElem())
-            secondNode = self.nodes.pop(self.indexMinElem())
-
+            first_node = self.nodes.pop(self.__find_index_of_min_elem())
+            second_node = self.nodes.pop(self.__find_index_of_min_elem())
             self.nodes.append(
-                Node(firstNode.symbols + secondNode.symbols, 
-                     firstNode.frequency + secondNode.frequency,
-                     firstNode, secondNode)
+                Node(
+                    symbols=first_node.symbols + second_node.symbols, 
+                    frequency=first_node.frequency + second_node.frequency,
+                    left=first_node,
+                    right=second_node,
+                )
             )
             bar.next()
         bar.finish()
 
         return self.nodes[0]
 
-    def fillValueNode(self, node: Node):
+    def __fill_node_value(self, node: Node) -> None:
         if node.left != None:
             node.left.value += node.value + "0"
-            self.fillValueNode(node.left)
+            self.__fill_node_value(node.left)
         
         if node.right != None:
             node.right.value += node.value + "1"
-            self.fillValueNode(node.right)
+            self.__fill_node_value(node.right)
 
-    def searchCodeBySymbol(self, symbol: bytes, node: Node) -> str:
-        if node.symbols == symbol:
-            code = node.value 
+    def __find_code_by_symbol(self, symbol: bytes, node: Node) -> str:
+        if len(node.symbols) == 1 and node.symbols[0] == symbol:
+            code = node.value  
         # есть ли искомый символ в левой части дерева
-        elif node.left.symbols.find(symbol) > -1:
-            code = self.searchCodeBySymbol(symbol, node.left)
+        elif symbol in node.left.symbols:
+            code = self.__find_code_by_symbol(symbol, node.left)
         # есть ли искомый символ в правой части дерева
         else:
-            code = self.searchCodeBySymbol(symbol, node.right)
+            code = self.__find_code_by_symbol(symbol, node.right)
 
         return code
 
-    def getCodeBySymbol(self, symbol: bytes) -> str:
-        return self.searchCodeBySymbol(symbol, self.tree)
-
-    def searchSymbolByCode(self, code: str, node: Node) -> bytes:
+    def __find_symbol_by_code(self, code: str, node: Node) -> bytes:
         if len(code) == 0:
             # не дошли до конца дерева, надо взять больший код
             if node.left != None or node.left != None:
                 symbol = None
             else:
-                symbol = node.symbols 
+                symbol = node.symbols[0]
 
         # есть ли искомый символ в левой части дерева
         elif node.left.value[-1] == code[0]:
-            symbol = self.searchSymbolByCode(code[1:], node.left)
+            symbol = self.__find_symbol_by_code(code[1:], node.left)
         # есть ли искомый символ в правой части дерева
         else:
-            symbol = self.searchSymbolByCode(code[1:], node.right)
+            symbol = self.__find_symbol_by_code(code[1:], node.right)
 
         return symbol
-
-    def getSymbolByCode(self, code: str) -> bytes:
-        return self.searchSymbolByCode(code, self.tree)

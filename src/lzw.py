@@ -2,15 +2,22 @@ from progress.bar import IncrementalBar
 
 
 class LZW:
-    def compress(self, data: bytes):
-        # Инициализируем базовый словарь для всех возможных байтов
+    def __init__(self, code_size: int) -> None:
+        self.code_size = code_size
+        
+    def compress(self, data: bytes) -> bytes:
         dictionary = {bytes([i]): i for i in range(256)}
-        chain_count = 256  # Начало пользовательских кодов
+        chain_count = 256
+        max_number_of_chains = pow(256, self.code_size)
+
         curr_msg = bytes()
         result = []
 
         print()
-        bar = IncrementalBar('Сжатие методом LZW', max = len(data))
+        bar = IncrementalBar(
+            'Сжатие методом LZW', 
+            max = len(data),
+        )
         for byte in data:
             curr_char = bytes([byte])
             if curr_msg + curr_char in dictionary:
@@ -19,7 +26,7 @@ class LZW:
                 # Добавляем код текущей последовательности в результат
                 result.append(dictionary[curr_msg])
                 # Добавляем новую цепочку в словарь
-                if chain_count < 65536:
+                if chain_count < max_number_of_chains:
                     dictionary[curr_msg + curr_char] = chain_count
                     chain_count += 1
 
@@ -32,22 +39,23 @@ class LZW:
         if curr_msg:
             result.append(dictionary[curr_msg])
 
-        # Преобразуем результат в байты (фиксированный размер кодов — 2 байта)
+        print(f"\nКол-во цепочек байт в словаре: {chain_count}")
+
+        # Преобразуем результат в байты
         compressed_data = b''.join(
-            code.to_bytes(2, byteorder='big') for code in result
+            code.to_bytes(self.code_size, byteorder='big') for code in result
         )
-        print(f"\nКол-во цепочек в словаре: {chain_count}")
         return compressed_data
     
-    def decompress(self, compressed_data: bytes):
-        # Инициализируем базовый словарь для всех возможных байтов
+    def decompress(self, data: bytes) -> bytes:
         inverted_dict = {i: bytes([i]) for i in range(256)}
-        chain_count = 256  # Начало пользовательских кодов
+        chain_count = 256
+        max_number_of_chains = pow(256, self.code_size)
 
-        # Разбиваем данные на 2-байтовые коды
+        # Разбиваем данные на n-байтовые коды
         codes = [
-            int.from_bytes(compressed_data[i:i + 2], byteorder='big')
-            for i in range(0, len(compressed_data), 2)
+            int.from_bytes(data[i:i + self.code_size], byteorder='big')
+            for i in range(0, len(data), self.code_size)
         ]
 
         # Восстанавливаем данные
@@ -56,7 +64,10 @@ class LZW:
         result.extend(prev_chain)
 
         print()
-        bar = IncrementalBar('Распаковка методом LZW', max = len(codes) - 1)
+        bar = IncrementalBar(
+            'Распаковка методом LZW', 
+            max = len(codes) - 1,
+        )
         for code in codes[1:]:
             if code in inverted_dict:
                 chain = inverted_dict[code]
@@ -69,7 +80,7 @@ class LZW:
             result.extend(chain)
 
             # Добавляем новую цепочку в словарь
-            if chain_count < 65536:
+            if chain_count < max_number_of_chains:
                 inverted_dict[chain_count] = prev_chain + chain[:1]
                 chain_count += 1
 

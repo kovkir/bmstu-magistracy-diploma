@@ -5,72 +5,95 @@ from tree import Tree
 
 
 class Huffman():
-    frequencyTable: dict
-    tree: Tree
-    countBitsMsg: int
+    def __init__(self, code_size: int) -> None:
+        self.code_size = code_size
 
-    def multipleLength(self, bitsArr: bitarray, numb):
-        return bitsArr + bitarray("0" * (len(bitsArr) % numb))
-
-    def toBits(self, bytesStr: bytes):
-        bitsArr = bitarray()
-        bitsArr.frombytes(bytesStr)
-        return bitsArr
-
-    def toBytes(self, bitsArr: bitarray):
-        return bitsArr.tobytes()
-
-    def fillFrequencyTable(self, bytesStr: bytes):
-        self.frequencyTable = {bytes([i]): 0 for i in range(256)}
+    def fill_frequency_table(self, bytes_str: bytes) -> None:
+        self.frequency_table = {}
 
         print()
-        bar = IncrementalBar('Вычисление таблицы частот символов', max = len(bytesStr))
-        for i in bytesStr:
-            self.frequencyTable[bytes([i])] = bytesStr.count(i)
-            bar.next()
-        bar.finish()
-
-    def buildTree(self):
-        self.tree = Tree(self.frequencyTable)
-
-    def compress(self, data: bytes) -> str:
-        print()
-        bar = IncrementalBar('Сжатие методом Хаффмана', max = len(data))
-        bitsStr = ""
-        for byte in data:
-            # обход дерева в поисках кода переданного символа
-            bitsStr += self.tree.getCodeBySymbol(bytes([byte]))
-            bar.next()
-        bar.finish()
-
-        self.countBitsMsg = len(bitsStr)
-        bitsArr = self.multipleLength(bitarray(bitsStr), 8)
-  
-        return self.toBytes(bitsArr)
-
-    def getDecompressedSymbol(self, bitsStr: str) -> bytes:
-        for i in range(1, len(bitsStr) + 1):
-            # обход дерева в поисках символа переданного кода
-            symbol = self.tree.getSymbolByCode(bitsStr[:i])
+        bar = IncrementalBar(
+            'Вычисление таблицы частот символов', 
+            max = len(bytes_str) / self.code_size,
+        )
+        for i in range(0, len(bytes_str) - self.code_size + 1, self.code_size):
+            byte_sequence = bytes_str[i:i + self.code_size]
+            self.frequency_table[byte_sequence] = \
+                bytes_str.count(byte_sequence)
             
-            if symbol != None:
-                return symbol, i
-            # иначе не дошли до конца дерева, надо взять больший код
+            bar.next()
+        bar.finish()
+
+    def build_tree(self) -> None:
+        self.tree = Tree(self.frequency_table)
+
+    def compress(self, data: bytes) -> bytes:
+        print()
+        bar = IncrementalBar(
+            'Сжатие методом Хаффмана', 
+            max = len(data) / self.code_size,
+        )
+        bits_str = ""
+        for i in range(0, len(data) - self.code_size + 1, self.code_size):
+            byte_sequence = data[i:i + self.code_size]
+            # обход дерева в поисках кода переданного символа
+            bits_str += self.tree.get_code_by_symbol(byte_sequence)
+
+            bar.next()
+        bar.finish()
+
+        self.bits_in_msg_count = len(bits_str)
+        bits = self.__add_zeros_to_bits(
+            bits=bitarray(bits_str), 
+            multiplicity=8,
+        )
+  
+        return self.__to_bytes(bits)
 
     def decompress(self, data: bytes) -> bytes:
-        bitsArr = self.toBits(data)
-        bitsStr = bitsArr[:self.countBitsMsg].to01()
+        bits = self.__to_bits(data)
+        bits_str = bits[:self.bits_in_msg_count].to01()
 
         print()
-        bar = IncrementalBar('Распаковка методом Хаффмана', max = len(bitsStr))
-        bytesStr = bytes()
-        while len(bitsStr) > 0:
-            byte, lenSymbol = self.getDecompressedSymbol(bitsStr)
+        bar = IncrementalBar(
+            'Распаковка методом Хаффмана', 
+            max = len(bits_str),
+        )
+        bytes_str = bytes()
+        while len(bits_str) > 0:
+            byte_sequence, lenSymbol = \
+                self.__get_decompressed_symbol(bits_str)
 
-            bytesStr += byte
-            bitsStr = bitsStr[lenSymbol:]
+            bytes_str += byte_sequence
+            bits_str = bits_str[lenSymbol:]
 
             bar.next(n=lenSymbol)
         bar.finish()
         
-        return bytesStr
+        return bytes_str
+    
+    def __add_zeros_to_bits(
+        self, 
+        bits: bitarray, 
+        multiplicity: int,
+    ) -> bitarray:
+        return bits + bitarray("0" * (len(bits) % multiplicity))
+
+    def __to_bytes(self, bits: bitarray) -> bytes:
+        return bits.tobytes()
+    
+    def __to_bits(self, bytes_str: bytes) -> bitarray:
+        bits = bitarray()
+        bits.frombytes(bytes_str)
+        return bits
+    
+    def __get_decompressed_symbol(
+        self, 
+        bits_str: str,
+    ) -> tuple[bytes, int] | None:
+        for i in range(1, len(bits_str) + 1):
+            # обход дерева в поисках символа переданного кода
+            symbol = self.tree.get_symbol_by_code(bits_str[:i])
+            if symbol != None:
+                return symbol, i
+            # иначе не дошли до конца дерева, надо взять больший код
