@@ -1,6 +1,8 @@
 import subprocess
 
+from window import Window
 from compression import Compression
+from constants import WINDOW_HEIGHT, WINDOW_WIDTH
 from color import *
 
 
@@ -45,9 +47,12 @@ def start_encryption(file_path) -> None:
 
 
 def main() -> None:
-    file_path = get_input_file()
-    if file_path != None:
-        start_encryption(file_path)
+    window = Window(WINDOW_WIDTH, WINDOW_HEIGHT)
+    window.run()
+
+    # file_path = get_input_file()
+    # if file_path != None:
+    #     start_encryption(file_path)
 
 
 if __name__ == "__main__":
