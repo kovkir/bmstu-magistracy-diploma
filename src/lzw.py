@@ -1,9 +1,11 @@
+from tkinter import Text
 from progress.bar import IncrementalBar
 
 
 class LZW:
-    def __init__(self, code_size: int) -> None:
+    def __init__(self, code_size: int, text_editor: Text) -> None:
         self.code_size = code_size
+        self.text_editor = text_editor
         
     def compress(self, data: bytes) -> bytes:
         dictionary = {bytes([i]): i for i in range(256)}
@@ -40,6 +42,7 @@ class LZW:
             result.append(dictionary[curr_msg])
 
         print(f"\nКол-во цепочек байт в словаре: {chain_count}")
+        print("\nСреднее число байт в цепочках: {:.2f}".format(len(data) / chain_count))
 
         # Преобразуем результат в байты
         compressed_data = b''.join(

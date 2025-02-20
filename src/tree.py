@@ -1,3 +1,4 @@
+from tkinter import Text, END
 from progress.bar import IncrementalBar
 
 
@@ -18,7 +19,13 @@ class Node():
 
 
 class Tree():
-    def __init__(self, frequency_table: dict) -> None:
+    def __init__(
+        self, 
+        frequency_table: dict,
+        text_editor: Text,
+    ) -> None:
+        self.text_editor = text_editor
+
         self.nodes: list[Node] = list()
         self.__add_nodes(frequency_table)
 
@@ -56,6 +63,8 @@ class Tree():
         return index
 
     def __build_tree(self) -> Node:
+        self.text_editor.insert(END, 'Построение дерева Хаффмана\n')
+        self.text_editor.update()
         print()
         bar = IncrementalBar(
             'Построение дерева Хаффмана', 

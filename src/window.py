@@ -1,3 +1,4 @@
+import os
 from tkinter import (
     Tk, 
     Label, 
@@ -12,7 +13,8 @@ from tkinter import (
     DISABLED,
 )
 
-from constants import CODE_SIZE_IN_BYTES
+from compression import Compression
+from constants import *
 from color import *
 
 
@@ -21,6 +23,7 @@ class Window():
     codeSizeEntry: Entry
     inputFilenameEntry: Entry
     outputDirectoryEntry: Entry
+    textEditor: Text
 
     def __init__(self, windowWidth: int, windowHeight: int):
         self.window = self.createWindow(windowWidth, windowHeight)
@@ -61,6 +64,9 @@ class Window():
         )
         self.codeSizeEntry = Entry(
             font = ("Arial", 14),
+            bg = "white", 
+            fg = PURPLE_SUPER_DARK,
+            highlightbackground = PURPLE_DARK,
         )
         self.codeSizeEntry.place(
             width = windowWidth * 0.38, 
@@ -82,6 +88,9 @@ class Window():
         )
         self.inputFilenameEntry = Entry(
             font = ("Arial", 14),
+            bg = "white", 
+            fg = PURPLE_SUPER_DARK,
+            highlightbackground = PURPLE_DARK,
         )
         self.inputFilenameEntry.place(
             width = windowWidth * 0.38, 
@@ -103,6 +112,9 @@ class Window():
         )
         self.outputDirectoryEntry = Entry(
             font = ("Arial", 14),
+            bg = "white", 
+            fg = PURPLE_SUPER_DARK,
+            highlightbackground = PURPLE_DARK,
         )
         self.outputDirectoryEntry.place(
             width = windowWidth * 0.38, 
@@ -160,7 +172,49 @@ class Window():
             x = windowWidth * 0.52 + 2, 
             y = 172,
         )
-        
+
+        self.methodVar = IntVar()
+
+        Radiobutton(
+            text = "Разработанный гибридный метод", 
+            variable = self.methodVar, value = HYBRID,
+            font = ("Arial", 16), 
+            bg = PURPLE_LIGHT, 
+            fg = PURPLE_SUPER_DARK,
+            anchor = "w",
+        ).place(
+            width = windowWidth * 0.3, 
+            height = 30, 
+            x = windowWidth * 0.1, 
+            y = 220,
+        )
+        Radiobutton(
+            text = "Метод Хаффмана", 
+            variable = self.methodVar, value = HUFFMAN,
+            font = ("Arial", 16), 
+            bg = PURPLE_LIGHT, 
+            fg = PURPLE_SUPER_DARK,
+            anchor = "w",
+        ).place(
+            width = windowWidth * 0.2, 
+            height = 30, 
+            x = windowWidth * 0.45,
+            y = 220,
+        )
+        Radiobutton(
+            text = "Метод LZW", 
+            variable = self.methodVar, value = LZW,
+            font = ("Arial", 16), 
+            bg = PURPLE_LIGHT, 
+            fg = PURPLE_SUPER_DARK,
+            anchor = "w",
+        ).place(
+            width = windowWidth * 0.2, 
+            height = 30, 
+            x = windowWidth * 0.7, 
+            y = 220,
+        )
+
         Label(
             text = "ЭТАПЫ СЖАТИЯ И РАСПАКОВКИ ИЗОБРАЖЕНИЙ",
             font = ("Arial", 16, "bold"), 
@@ -169,105 +223,24 @@ class Window():
         ).place(
             width = windowWidth, 
             height = 30, 
-            x = 0 , y = 220,
+            x = 0, 
+            y = 260,
         )
-        text_editor = Text()
-        text_editor.place(
-            width = windowWidth, height = 240, 
-            x = 0 , y = 260,
+        self.textEditor = Text(
+            font = ("Arial", 16), 
+            bg = "white", 
+            fg = PURPLE_SUPER_DARK,
+            highlightbackground = PURPLE_DARK,
+        )
+        self.textEditor.place(
+            width = windowWidth, 
+            height = 260, 
+            x = 0, 
+            y = 300,
         )
 
-        # self.methodVar = IntVar()
-        # self.methodVar.set(HYBRID)
-
-        # Radiobutton(
-        #     text = "Агломеративный подход иерархической кластеризации", 
-        #     variable = self.methodVar, value = HA,
-        #     font = ("Arial", 16), bg = PURPLE_LIGHT, fg = PURPLE_SUPER_DARK,
-        #     anchor = "w"
-        # ).place(
-        #     width = windowWidth * 0.7, height = 30, 
-        #     x = windowWidth  * 0.15, y = 210)
-        
-        # Radiobutton(
-        #     text = "Метод кластеризации центроидного типа K-прототипов", 
-        #     variable = self.methodVar, value = K_PROTOTYPES,
-        #     font = ("Arial", 16), bg = PURPLE_LIGHT, fg = PURPLE_SUPER_DARK,
-        #     anchor = "w"
-        # ).place(
-        #     width = windowWidth * 0.7, height = 30, 
-        #     x = windowWidth  * 0.15, y = 250)
-        
-        # Radiobutton(
-        #     text = "Гибридный метод кластеризации", 
-        #     variable = self.methodVar, value = HYBRID,
-        #     font = ("Arial", 16), bg = PURPLE_LIGHT, fg = PURPLE_SUPER_DARK,
-        #     anchor = "w"
-        # ).place(
-        #     width = windowWidth * 0.7, height = 30, 
-        #     x = windowWidth  * 0.15, y = 290)
-
-        # # вместо границы кнопки
-        # Button(
-        #     highlightbackground = PURPLE_DARK, highlightthickness = 30, 
-        #     fg = PURPLE_LIGHT, state = DISABLED
-        # ).place(
-        #     width = windowWidth * 0.8, height = 40, 
-        #     x = windowWidth * 0.1, y = 330)
-        # Button(
-        #     text = "Кластеризировать данные", 
-        #     font = ("Arial", 16), fg = PURPLE_SUPER_DARK,
-        #     highlightbackground = PURPLE, highlightthickness = 30,
-        #     command = lambda: self.doClustering()
-        # ).place(
-        #     width = windowWidth * 0.8 - 4, height = 36, 
-        #     x = windowWidth * 0.1 + 2, y = 332)
-
-        # Label(
-        #     text = "МЕТОДЫ ОЦЕНКИ КАЧЕСТВА КЛАСТЕРИЗАЦИИ",
-        #     font = ("Arial", 16, "bold"), bg = PURPLE_DARK, fg = "white"
-        # ).place(
-        #     width = windowWidth, height = 30, 
-        #     x = 0 , y = 380)
-        
-        # self.comparisonVar = IntVar()
-        # self.comparisonVar.set(ELBOW)
-
-        # Radiobutton(
-        #     text = "Метод оценки силуэтов", 
-        #     variable = self.comparisonVar, value = EVALUATION_SILHOUETTES,
-        #     font = ("Arial", 16), bg = PURPLE_LIGHT, fg = PURPLE_SUPER_DARK,
-        #     anchor = "w"
-        # ).place(
-        #     width = windowWidth * 0.35, height = 30, 
-        #     x = windowWidth  * 0.15, y = 420)
-        
-        # Radiobutton(
-        #     text = "Метод локтя", 
-        #     variable = self.comparisonVar, value = ELBOW,
-        #     font = ("Arial", 16), bg = PURPLE_LIGHT, fg = PURPLE_SUPER_DARK,
-        #     anchor = "w"
-        # ).place(
-        #     width = windowWidth * 0.35, height = 30, 
-        #     x = windowWidth  * 0.6, y = 420)
-
-        # Button(
-        #     highlightbackground = PURPLE_DARK, highlightthickness = 30, 
-        #     fg = PURPLE_LIGHT, state = DISABLED
-        # ).place(
-        #     width = windowWidth * 0.8, height = 40, 
-        #     x = windowWidth * 0.1, y = 460)
-        # Button(
-        #     text = "Сравнить методы разбиения", 
-        #     font = ("Arial", 16), fg = PURPLE_SUPER_DARK,
-        #     highlightbackground = PURPLE, highlightthickness = 30,
-        #     command = lambda: self.doComparison()
-        # ).place(
-        #     width = windowWidth * 0.8 - 4, height = 36, 
-        #     x = windowWidth * 0.1 + 2, y = 462)
-        
         Label(
-            text = "О ПРОГРАММЕ", 
+            text = "ВОЗМОЖНЫЕ ДЕЙСТВИЯ", 
             font = ("Arial", 16, "bold"), bg = PURPLE_DARK, fg = "white",
         ).place(
             width = windowWidth, height = 30, 
@@ -275,20 +248,78 @@ class Window():
         )
 
         Button(
-            highlightbackground = PURPLE_DARK, highlightthickness = 30, 
-            fg = PURPLE_LIGHT, state = DISABLED,
+            highlightbackground = PURPLE_DARK, 
+            highlightthickness = 30, 
+            fg = PURPLE_LIGHT, 
+            state = DISABLED,
         ).place(
-            width = windowWidth * 0.8, height = 40, 
-            x = windowWidth * 0.1, y = windowHeight - 50,
+            width = windowWidth * 0.24, 
+            height = 40, 
+            x = windowWidth * 0.1, 
+            y = windowHeight - 50,
         )
         Button(
-            text = "Информация о программе", 
-            font = ("Arial", 16), fg = PURPLE_SUPER_DARK,
-            highlightbackground = PURPLE, highlightthickness = 30, 
+            text = "Сжать и рапаковать", 
+            font = ("Arial", 16), 
+            fg = PURPLE_SUPER_DARK,
+            highlightbackground = PURPLE, 
+            highlightthickness = 30, 
+            command = lambda: self.startEncryption(),
+        ).place(
+            width = windowWidth * 0.24 - 4, 
+            height = 36, 
+            x = windowWidth * 0.1 + 2, 
+            y = windowHeight - 48,
+        )
+
+        Button(
+            highlightbackground = PURPLE_DARK, 
+            highlightthickness = 30, 
+            fg = PURPLE_LIGHT, 
+            state = DISABLED,
+        ).place(
+            width = windowWidth * 0.24, 
+            height = 40, 
+            x = windowWidth * 0.38, 
+            y = windowHeight - 50,
+        )
+        Button(
+            text = "Сравнить методы", 
+            font = ("Arial", 16), 
+            fg = PURPLE_SUPER_DARK,
+            highlightbackground = PURPLE, 
+            highlightthickness = 30, 
             command = lambda: self.aboutProgram(),
         ).place(
-            width = windowWidth * 0.8 - 4, height = 36, 
-            x = windowWidth * 0.1 + 2, y = windowHeight - 48,
+            width = windowWidth * 0.24 - 4, 
+            height = 36, 
+            x = windowWidth * 0.38 + 2, 
+            y = windowHeight - 48,
+        )
+
+        Button(
+            highlightbackground = PURPLE_DARK, 
+            highlightthickness = 30, 
+            fg = PURPLE_LIGHT, 
+            state = DISABLED,
+        ).place(
+            width = windowWidth * 0.24, 
+            height = 40, 
+            x = windowWidth * 0.66, 
+            y = windowHeight - 50,
+        )
+        Button(
+            text = "О программе", 
+            font = ("Arial", 16), 
+            fg = PURPLE_SUPER_DARK,
+            highlightbackground = PURPLE, 
+            highlightthickness = 30, 
+            command = lambda: self.aboutProgram(),
+        ).place(
+            width = windowWidth * 0.24 - 4, 
+            height = 36, 
+            x = windowWidth * 0.66 + 2, 
+            y = windowHeight - 48,
         )
     
     def setInputFilenameEntry(self) -> None:
@@ -302,40 +333,71 @@ class Window():
         if filepath != "":
             self.outputDirectoryEntry.delete(0, END)
             self.outputDirectoryEntry.insert(0, filepath)
-       
-
-    # def getNumberObjects(self) -> Union[int, None]:
-    #     try:
-    #         numberObjects = int(self.numberObjects.get())
-    #     except:
-    #         numberObjects = None
-        
-    #     if numberObjects == None or \
-    #        numberObjects < 1 or numberObjects > NUMBER_OF_ROWS:
-    #         messagebox.showwarning("Ошибка",
-    #             "Невозможное значение количества обрабатываемых объектов!\n"
-    #             "Ожидался ввод натурального числа.")
-    #         return
-        
-    #     return numberObjects
     
+    def startEncryption(self) -> None:
+        codeSize = self.getCodeSize()
+        if codeSize is None:
+            return
+        
+        inputFile = self.getInputFile()
+        if inputFile is None:
+            return
+        
+        outputDirectory = self.getOutputDirectory()
+        if outputDirectory is None:
+            return
 
-    # def getNumberClusters(self, numberObjects: int) -> Union[int, None]:
-    #     try:
-    #         numberClusters = int(self.numberClusters.get())
-    #     except:
-    #         numberClusters = None
+        compressor = Compression(
+            code_size=codeSize,
+            text_editor=self.textEditor,
+        )
+        compressor.compress(
+            inputFile,
+            outputDirectory + "/compressed.bin",
+        )
+        compressor.decompress(
+            outputDirectory + "/compressed.bin",
+            outputDirectory + "/decompressed." + inputFile.split(".")[-1],
+        )
+
+    def getOutputDirectory(self) -> str | None:
+        path = self.outputDirectoryEntry.get()
+        if not os.path.exists(path) or not os.path.isdir(path):
+            messagebox.showwarning(
+                "Ошибка",
+                "Директории с таким имененм не существует!"
+            )
+            return
         
-    #     if numberClusters == None or \
-    #        numberClusters < 1 or numberClusters > numberObjects:
-    #         messagebox.showwarning("Ошибка",
-    #             "Невозможное значение количества кластеров!\n"
-    #             "Ожидался ввод натурального числа.\n"
-    #             "Также количество кластеров должно быть не больше "
-    #             "количества обрабатываемых объектов.")
-    #         return
+        return path
+    
+    def getInputFile(self) -> str | None:
+        path = self.inputFilenameEntry.get()
+        if not os.path.exists(path) or not os.path.isfile(path):
+            messagebox.showwarning(
+                "Ошибка",
+                "Файла с таким имененм не существует!"
+            )
+            return
         
-    #     return numberClusters
+        return path
+    
+    def getCodeSize(self) -> int | None:
+        try:
+            codeSize = int(self.codeSizeEntry.get())
+        except:
+            codeSize = None
+        
+        if codeSize is None or \
+           codeSize < 1 or codeSize > 8:
+            messagebox.showwarning(
+                "Ошибка",
+                "Невозможное значение размера кода для метода LZW в байтах!\n"
+                "Ожидался ввод натурального числа в диапазоне от 1 до 8."
+            )
+            return
+        
+        return codeSize
     
     
     # def getNumberRuns(self) -> Union[int, None]:
@@ -410,5 +472,6 @@ class Window():
 
     def run(self):
         self.codeSizeEntry.insert(0, CODE_SIZE_IN_BYTES)
+        self.methodVar.set(HYBRID)
 
         self.window.mainloop()

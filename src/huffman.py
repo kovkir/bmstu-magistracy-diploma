@@ -1,3 +1,4 @@
+from tkinter import Text, END
 from bitarray import bitarray
 from progress.bar import IncrementalBar
 
@@ -5,12 +6,15 @@ from tree import Tree
 
 
 class Huffman():
-    def __init__(self, code_size: int) -> None:
+    def __init__(self, code_size: int, text_editor: Text) -> None:
         self.code_size = code_size
+        self.text_editor = text_editor
 
     def fill_frequency_table(self, bytes_str: bytes) -> None:
         self.frequency_table = {}
 
+        self.text_editor.insert(END, "Вычисление таблицы частот символов\n")
+        self.text_editor.update()
         print()
         bar = IncrementalBar(
             'Вычисление таблицы частот символов', 
@@ -24,10 +28,25 @@ class Huffman():
             bar.next()
         bar.finish()
 
+        self.text_editor.insert(
+            END, 
+            "Среднее кол-во повторных использований цепочек байт: {:.2f}\n".format(
+            len(bytes_str) / self.code_size / len(self.frequency_table)
+        ))
+        self.text_editor.update()
+        print("\nСреднее кол-во повторных использований цепочек байт: {:.2f}".format(
+            len(bytes_str) / self.code_size / len(self.frequency_table)
+        ))
+
     def build_tree(self) -> None:
-        self.tree = Tree(self.frequency_table)
+        self.tree = Tree(
+            frequency_table=self.frequency_table,
+            text_editor=self.text_editor,
+        )
 
     def compress(self, data: bytes) -> bytes:
+        self.text_editor.insert(END, "Сжатие методом Хаффмана\n")
+        self.text_editor.update()
         print()
         bar = IncrementalBar(
             'Сжатие методом Хаффмана', 
@@ -54,6 +73,8 @@ class Huffman():
         bits = self.__to_bits(data)
         bits_str = bits[:self.bits_in_msg_count].to01()
 
+        self.text_editor.insert(END, 'Распаковка методом Хаффмана\n')
+        self.text_editor.update()
         print()
         bar = IncrementalBar(
             'Распаковка методом Хаффмана', 
