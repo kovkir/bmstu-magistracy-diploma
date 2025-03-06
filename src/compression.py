@@ -1,15 +1,24 @@
 from tkinter import Text, END
+from tkinter.ttk import Progressbar
 
+from constants import CompressionMethods
 from huffman import Huffman
 from lzw import LZW
 from color import *
 
 
 class Compression():
-    def __init__(self, code_size: int, text_editor: Text) -> None:
-        self.huffman = Huffman(code_size, text_editor)
-        self.lzw = LZW(code_size, text_editor)
+    def __init__(
+        self,
+        method: CompressionMethods,
+        code_size: int,
+        text_editor: Text,
+        progressbar: Progressbar,
+    ) -> None:
+        self.lzw = LZW(code_size, text_editor, progressbar)
+        self.huffman = Huffman(code_size, text_editor, progressbar)
         self.text_editor = text_editor
+        self.method = method
 
     def compress(self, input_file_name: str, output_file_name: str) -> None:
         input_file = open(input_file_name, "rb")
@@ -21,15 +30,37 @@ class Compression():
         self.text_editor.insert(END, f"Размер изначального файла: {size}\n")
         self.text_editor.update()
         print(f"\nРазмер изначального файла: {size}")
+        
+        match self.method:
+            case CompressionMethods.HYBRID:
+                lzw_compressed = self.lzw.compress(data)
+                self.huffman.fill_frequency_table(lzw_compressed)
+                self.huffman.build_tree()
 
-        lzw_compressed = self.lzw.compress(data)
-        self.huffman.fill_frequency_table(lzw_compressed)
-        self.huffman.build_tree()
+                huffman_compressed = self.huffman.compress(lzw_compressed)
+                output_file.write(huffman_compressed)
+                size = self.__get_file_size(
+                    bytes_count=len(huffman_compressed)
+                )
+                method_str = "LZW + Хаффман"
+            case CompressionMethods.HUFFMAN:
+                self.huffman.fill_frequency_table(data)
+                self.huffman.build_tree()
 
-        huffman_compressed = self.huffman.compress(lzw_compressed)
-        output_file.write(huffman_compressed)
+                huffman_compressed = self.huffman.compress(data)
+                output_file.write(huffman_compressed)
+                size = self.__get_file_size(
+                    bytes_count=len(huffman_compressed)
+                )
+                method_str = "Хаффман"
+            case _:
+                lzw_compressed = self.lzw.compress(data)
+                output_file.write(lzw_compressed)
+                size = self.__get_file_size(
+                    bytes_count=len(lzw_compressed)
+                )
+                method_str = "LZW"
 
-        size = self.__get_file_size(len(huffman_compressed))
         self.text_editor.insert(END, f"Размер сжатого файла: {size}\n")
         self.text_editor.update()
         print(f"\nРазмер сжатого файла: {size}")
@@ -37,9 +68,9 @@ class Compression():
         input_file.close()
         output_file.close()
 
-        self.text_editor.insert(END, f"Файл успешно сжат (LZW + Хаффман)\n")
+        self.text_editor.insert(END, f"Файл успешно сжат ({method_str})\n\n")
         self.text_editor.update()
-        print(f"{purple}\nФайл успешно сжат (LZW + Хаффман){base_color}")
+        print(f"{purple}\nФайл успешно сжат ({method_str}){base_color}")
 
     def decompress(self, input_file_name: str, output_file_name: str) -> None:
         input_file = open(input_file_name, "rb")
@@ -49,22 +80,40 @@ class Compression():
         if not bytesStr:
             return None
 
-        huffman_decompressed = self.huffman.decompress(bytesStr)
-        lzw_decompressed = self.lzw.decompress(huffman_decompressed)
+        match self.method:
+            case CompressionMethods.HYBRID:
+                huffman_decompressed = self.huffman.decompress(bytesStr)
+                lzw_decompressed = self.lzw.decompress(huffman_decompressed)
+                output_file.write(lzw_decompressed)
+                size = self.__get_file_size(
+                    bytes_count=len(lzw_decompressed)
+                )
+                method_str = "LZW + Хаффман"
+            case CompressionMethods.HUFFMAN:
+                huffman_decompressed = self.huffman.decompress(bytesStr)
+                output_file.write(huffman_decompressed)
+                size = self.__get_file_size(
+                    bytes_count=len(huffman_decompressed)
+                )
+                method_str = "Хаффман"
+            case _:
+                lzw_decompressed = self.lzw.decompress(bytesStr)
+                output_file.write(lzw_decompressed)
+                size = self.__get_file_size(
+                    bytes_count=len(lzw_decompressed)
+                )
+                method_str = "LZW"
 
-        size = self.__get_file_size(len(lzw_decompressed))
         self.text_editor.insert(END, f"Размер распакованного файла: {size}\n")
         self.text_editor.update()
         print(f"\nРазмер распакованного файла: {size}")
 
-        output_file.write(lzw_decompressed)
-
         input_file.close()
         output_file.close()
 
-        self.text_editor.insert(END, f"Файл успешно распакован (Хаффман + LZW)\n")
+        self.text_editor.insert(END, f"Файл успешно распакован ({method_str})\n\n")
         self.text_editor.update()
-        print(f"{purple}\nФайл успешно распакован (Хаффман + LZW){base_color}\n")
+        print(f"{purple}\nФайл успешно распакован ({method_str}){base_color}\n")
 
     def __get_file_size(self, bytes_count: int) -> str:
         kilobytes = bytes_count / 1024

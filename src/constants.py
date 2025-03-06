@@ -1,3 +1,5 @@
+from enum import Enum
+
 # размеры окна приложения
 WINDOW_WIDTH  = 1100
 WINDOW_HEIGHT = 660
@@ -6,6 +8,7 @@ WINDOW_HEIGHT = 660
 CODE_SIZE_IN_BYTES = 4
 
 # методы сжатия для выбора
-HYBRID  = 0
-HUFFMAN = 1
-LZW     = 2
+class CompressionMethods(Enum):
+    HYBRID  = 0
+    HUFFMAN = 1
+    LZW     = 2

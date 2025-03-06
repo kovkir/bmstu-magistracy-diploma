@@ -1,4 +1,5 @@
 from tkinter import Text, END
+from tkinter.ttk import Progressbar
 from progress.bar import IncrementalBar
 
 
@@ -23,8 +24,10 @@ class Tree():
         self, 
         frequency_table: dict,
         text_editor: Text,
+        progressbar: Progressbar,
     ) -> None:
         self.text_editor = text_editor
+        self.progressbar = progressbar
 
         self.nodes: list[Node] = list()
         self.__add_nodes(frequency_table)
@@ -63,13 +66,12 @@ class Tree():
         return index
 
     def __build_tree(self) -> Node:
-        self.text_editor.insert(END, 'Построение дерева Хаффмана\n')
-        self.text_editor.update()
-        print()
-        bar = IncrementalBar(
-            'Построение дерева Хаффмана', 
-            max = len(self.nodes) - 1,
+        size_data = len(self.nodes) - 1
+        bar = self.__init_progressbar(
+            name="Построение дерева Хаффмана",
+            size=size_data,
         )
+        i = 0
         while len(self.nodes) > 1:
             first_node = self.nodes.pop(self.__find_index_of_min_elem())
             second_node = self.nodes.pop(self.__find_index_of_min_elem())
@@ -80,6 +82,12 @@ class Tree():
                     left=first_node,
                     right=second_node,
                 )
+            )
+
+            i += 1
+            self.__update_progressbar(
+                iteration=i,
+                size=size_data,
             )
             bar.next()
         bar.finish()
@@ -123,3 +131,19 @@ class Tree():
             symbol = self.__find_symbol_by_code(code[1:], node.right)
 
         return symbol
+    
+    def __init_progressbar(self, name: str, size: int) -> IncrementalBar:
+        self.text_editor.insert(END, f"{name}\n")
+        self.text_editor.update()
+        
+        self.progressbar.step(0)
+        self.progressbar.update()
+        print()
+
+        return IncrementalBar(name, max=size)
+    
+    def __update_progressbar(self, iteration: int, size: int) -> None:
+        percent = round(iteration / size * 100)
+        if self.progressbar['value'] + 5 <= percent:
+            self.progressbar['value'] = percent
+            self.progressbar.update()

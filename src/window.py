@@ -12,6 +12,7 @@ from tkinter import (
     END,
     DISABLED,
 )
+from tkinter.ttk import Progressbar
 
 from compression import Compression
 from constants import *
@@ -24,6 +25,7 @@ class Window():
     inputFilenameEntry: Entry
     outputDirectoryEntry: Entry
     textEditor: Text
+    progressbar: Progressbar
 
     def __init__(self, windowWidth: int, windowHeight: int):
         self.window = self.createWindow(windowWidth, windowHeight)
@@ -177,20 +179,20 @@ class Window():
 
         Radiobutton(
             text = "Разработанный гибридный метод", 
-            variable = self.methodVar, value = HYBRID,
+            variable = self.methodVar, value = CompressionMethods.HYBRID.value,
             font = ("Arial", 16), 
             bg = PURPLE_LIGHT, 
             fg = PURPLE_SUPER_DARK,
             anchor = "w",
         ).place(
-            width = windowWidth * 0.3, 
+            width = windowWidth * 0.35, 
             height = 30, 
             x = windowWidth * 0.1, 
             y = 220,
         )
         Radiobutton(
             text = "Метод Хаффмана", 
-            variable = self.methodVar, value = HUFFMAN,
+            variable = self.methodVar, value = CompressionMethods.HUFFMAN.value,
             font = ("Arial", 16), 
             bg = PURPLE_LIGHT, 
             fg = PURPLE_SUPER_DARK,
@@ -203,7 +205,7 @@ class Window():
         )
         Radiobutton(
             text = "Метод LZW", 
-            variable = self.methodVar, value = LZW,
+            variable = self.methodVar, value = CompressionMethods.LZW.value,
             font = ("Arial", 16), 
             bg = PURPLE_LIGHT, 
             fg = PURPLE_SUPER_DARK,
@@ -230,21 +232,40 @@ class Window():
             font = ("Arial", 16), 
             bg = "white", 
             fg = PURPLE_SUPER_DARK,
-            highlightbackground = PURPLE_DARK,
+            highlightbackground = "white",
         )
         self.textEditor.place(
             width = windowWidth, 
-            height = 260, 
+            height = 240, 
             x = 0, 
             y = 300,
         )
+
+        progressbarLabel = Label(
+            bg = "white", 
+        )
+        progressbarLabel.place(
+            width = windowWidth,
+            x = 0,
+            y = 540,
+        )
+        self.progressbar = Progressbar(
+            progressbarLabel,
+            orient="horizontal",
+            length=windowWidth,
+            maximum=100,
+        )
+        self.progressbar.pack()
+        self.progressbar.step(0)
 
         Label(
             text = "ВОЗМОЖНЫЕ ДЕЙСТВИЯ", 
             font = ("Arial", 16, "bold"), bg = PURPLE_DARK, fg = "white",
         ).place(
-            width = windowWidth, height = 30, 
-            x = 0 , y = windowHeight - 90,
+            width = windowWidth, 
+            height = 30, 
+            x = 0 ,
+            y = windowHeight - 90,
         )
 
         Button(
@@ -321,7 +342,7 @@ class Window():
             x = windowWidth * 0.66 + 2, 
             y = windowHeight - 48,
         )
-    
+
     def setInputFilenameEntry(self) -> None:
         filepath = filedialog.askopenfilename()
         if filepath != "":
@@ -335,9 +356,13 @@ class Window():
             self.outputDirectoryEntry.insert(0, filepath)
     
     def startEncryption(self) -> None:
-        codeSize = self.getCodeSize()
-        if codeSize is None:
-            return
+        method = CompressionMethods(self.methodVar.get())
+        if method == CompressionMethods.HUFFMAN:
+            codeSize = 1
+        else:
+            codeSize = self.getCodeSize()
+            if codeSize is None:
+                return
         
         inputFile = self.getInputFile()
         if inputFile is None:
@@ -348,8 +373,10 @@ class Window():
             return
 
         compressor = Compression(
+            method=method,
             code_size=codeSize,
             text_editor=self.textEditor,
+            progressbar=self.progressbar,
         )
         compressor.compress(
             inputFile,
@@ -398,69 +425,6 @@ class Window():
             return
         
         return codeSize
-    
-    
-    # def getNumberRuns(self) -> Union[int, None]:
-    #     try:
-    #         numberRuns = int(self.numberRuns.get())
-    #     except:
-    #         numberRuns = None
-        
-    #     if numberRuns == None or numberRuns < 1:
-    #         messagebox.showwarning("Ошибка",
-    #             "Невозможное значение количества прогонов!\n"
-    #             "Ожидался ввод натурального числа.")
-    #         return
-        
-    #     return numberRuns
-    
-
-    # def doClustering(self):
-    #     numberObjects = self.getNumberObjects()
-    #     if numberObjects == None:
-    #         return
-
-    #     numberClusters = self.getNumberClusters(numberObjects)
-    #     if numberClusters == None:
-    #         return
-        
-    #     objects = self.objects[:numberObjects]
-
-    #     if self.methodVar.get() == HA:
-    #         distance = Distance()
-    #         dissimilarityMatrix = distance.createDissimilarityMatrix(objects)
-
-    #         haClusterization = HAClusterization(dissimilarityMatrix)
-    #         haClusterization.buildDendrogram()
-
-    #     elif self.methodVar.get() == K_PROTOTYPES:
-    #         kPrototypesClusterization = KPrototypesClusterization(objects, numberClusters)
-    #         kPrototypesClusterization.buildGraph()
-
-    #     elif self.methodVar.get() == HYBRID:
-    #         hybridClusterization = HybridClusterization(objects, numberClusters)
-    #         hybridClusterization.buildGraph()
-
-
-    # def doComparison(self):
-    #     numberObjects = self.getNumberObjects()
-    #     if numberObjects == None:
-    #         return
-
-    #     numberRuns = self.getNumberRuns()
-    #     if numberRuns == None:
-    #         return
-        
-    #     objects = self.objects[:numberObjects]
-
-    #     if self.comparisonVar.get() == ELBOW:
-    #         test = TestElbow(objects, numberRuns)
-    #         test.comparisonMethods()
-
-    #     elif self.comparisonVar.get() == EVALUATION_SILHOUETTES:
-    #         test = TestSilhouettes(objects, numberRuns)
-    #         test.comparisonMethods()
-    
 
     def aboutProgram(self):
         messagebox.showinfo(
@@ -472,6 +436,6 @@ class Window():
 
     def run(self):
         self.codeSizeEntry.insert(0, CODE_SIZE_IN_BYTES)
-        self.methodVar.set(HYBRID)
+        self.methodVar.set(CompressionMethods.HYBRID.value)
 
         self.window.mainloop()

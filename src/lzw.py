@@ -1,12 +1,19 @@
-from tkinter import Text
+from tkinter import Text, END
+from tkinter.ttk import Progressbar
 from progress.bar import IncrementalBar
 
 
 class LZW:
-    def __init__(self, code_size: int, text_editor: Text) -> None:
+    def __init__(
+        self,
+        code_size: int, 
+        text_editor: Text,
+        progressbar: Progressbar,
+    ) -> None:
         self.code_size = code_size
         self.text_editor = text_editor
-        
+        self.progressbar = progressbar
+    
     def compress(self, data: bytes) -> bytes:
         dictionary = {bytes([i]): i for i in range(256)}
         chain_count = 256
@@ -15,12 +22,12 @@ class LZW:
         curr_msg = bytes()
         result = []
 
-        print()
-        bar = IncrementalBar(
-            'Сжатие методом LZW', 
-            max = len(data),
+        size_data = len(data)
+        bar = self.__init_progressbar(
+            name="Сжатие методом LZW",
+            size=size_data,
         )
-        for byte in data:
+        for i, byte in enumerate(data):
             curr_char = bytes([byte])
             if curr_msg + curr_char in dictionary:
                 curr_msg += curr_char
@@ -34,6 +41,10 @@ class LZW:
 
                 curr_msg = curr_char
             
+            self.__update_progressbar(
+                iteration=i + 1,
+                size=size_data,
+            )
             bar.next()
         bar.finish()
 
@@ -41,8 +52,11 @@ class LZW:
         if curr_msg:
             result.append(dictionary[curr_msg])
 
+        self.text_editor.insert(END, f"Кол-во цепочек байт в словаре: {chain_count}\n")
+        self.text_editor.insert(END, "Среднее число байт в цепочках: {:.2f}\n".format(size_data / chain_count))
+        self.text_editor.update()
         print(f"\nКол-во цепочек байт в словаре: {chain_count}")
-        print("\nСреднее число байт в цепочках: {:.2f}".format(len(data) / chain_count))
+        print("\nСреднее число байт в цепочках: {:.2f}".format(size_data / chain_count))
 
         # Преобразуем результат в байты
         compressed_data = b''.join(
@@ -66,12 +80,12 @@ class LZW:
         prev_chain = inverted_dict[codes[0]]
         result.extend(prev_chain)
 
-        print()
-        bar = IncrementalBar(
-            'Распаковка методом LZW', 
-            max = len(codes) - 1,
+        size_data = len(codes) - 1
+        bar = self.__init_progressbar(
+            name="Распаковка методом LZW",
+            size=size_data,
         )
-        for code in codes[1:]:
+        for i, code in enumerate(codes[1:]):
             if code in inverted_dict:
                 chain = inverted_dict[code]
             elif code == chain_count:
@@ -89,7 +103,27 @@ class LZW:
 
             prev_chain = chain
 
+            self.__update_progressbar(
+                iteration=i + 1,
+                size=size_data,
+            )
             bar.next()
         bar.finish()
 
         return bytes(result)
+    
+    def __init_progressbar(self, name: str, size: int) -> IncrementalBar:
+        self.text_editor.insert(END, f"{name}\n")
+        self.text_editor.update()
+        
+        self.progressbar.step(0)
+        self.progressbar.update()
+        print()
+
+        return IncrementalBar(name, max=size)
+    
+    def __update_progressbar(self, iteration: int, size: int) -> None:
+        percent = round(iteration / size * 100)
+        if self.progressbar['value'] + 5 <= percent:
+            self.progressbar['value'] = percent
+            self.progressbar.update()
