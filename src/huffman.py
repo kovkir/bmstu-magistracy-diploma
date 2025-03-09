@@ -1,3 +1,4 @@
+import re
 from tkinter import Text, END
 from tkinter.ttk import Progressbar
 from bitarray import bitarray
@@ -18,35 +19,36 @@ class Huffman():
         self.progressbar = progressbar
 
     def fill_frequency_table(self, bytes_str: bytes) -> None:
+        codes: list[bytes] = re.findall(rb"[\x00-\xff]{%d}" % self.code_size, bytes_str)
+        size_data = len(codes)
+
         self.frequency_table = {}
 
-        size_data = len(bytes_str) / self.code_size
         bar = self.__init_progressbar(
             name="Вычисление таблицы частот символов",
             size=size_data,
         )
-        for iteration, i in enumerate(
-            range(0, len(bytes_str) - self.code_size + 1, self.code_size)
-        ):
-            byte_sequence = bytes_str[i:i + self.code_size]
-            self.frequency_table[byte_sequence] = \
-                bytes_str.count(byte_sequence)
-            
+        for i, code in enumerate(codes):
+            if code not in self.frequency_table:
+                self.frequency_table[code] = codes.count(code)
+
             self.__update_progressbar(
-                iteration=iteration + 1,
+                iteration=i + 1,
                 size=size_data,
             )
             bar.next()
         bar.finish()
 
+        print(f"\nРазмер таблицы частот символов: {len(self.frequency_table)}")
+
         self.text_editor.insert(
             END, 
             "Среднее кол-во повторных использований цепочек байт: {:.2f}\n".format(
-            len(bytes_str) / self.code_size / len(self.frequency_table)
+            size_data / len(self.frequency_table)
         ))
         self.text_editor.update()
         print("\nСреднее кол-во повторных использований цепочек байт: {:.2f}".format(
-            len(bytes_str) / self.code_size / len(self.frequency_table)
+            size_data / len(self.frequency_table)
         ))
 
     def build_tree(self) -> None:
@@ -57,21 +59,20 @@ class Huffman():
         )
 
     def compress(self, data: bytes) -> bytes:
-        size_data = len(data) / self.code_size
+        codes: list[bytes] = re.findall(rb"[\x00-\xff]{%d}" % self.code_size, data)
+        size_data = len(codes)
+
         bar = self.__init_progressbar(
             name="Сжатие методом Хаффмана",
             size=size_data,
         )
         bits_str = ""
-        for iteration, i in enumerate(
-            range(0, len(data) - self.code_size + 1, self.code_size)
-        ):
-            byte_sequence = data[i:i + self.code_size]
+        for i, code in enumerate(codes):
             # обход дерева в поисках кода переданного символа
-            bits_str += self.tree.get_code_by_symbol(byte_sequence)
+            bits_str += self.tree.get_code_by_symbol(code)
 
             self.__update_progressbar(
-                iteration=iteration + 1,
+                iteration=i + 1,
                 size=size_data,
             )
             bar.next()

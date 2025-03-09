@@ -1,6 +1,9 @@
+import re
 from tkinter import Text, END
 from tkinter.ttk import Progressbar
 from progress.bar import IncrementalBar
+
+from constants import BYTES_AMOUNT_PER_PIXEL
 
 
 class LZW:
@@ -15,35 +18,49 @@ class LZW:
         self.progressbar = progressbar
     
     def compress(self, data: bytes) -> bytes:
-        dictionary = {bytes([i]): i for i in range(256)}
-        chain_count = 256
-        max_number_of_chains = pow(256, self.code_size)
-
+        """Сжатие данных с 3-байтовыми последовательностями (RGB)."""
+        if len(data) % BYTES_AMOUNT_PER_PIXEL != 0:
+            raise ValueError(f"Размер данных должен быть кратен {BYTES_AMOUNT_PER_PIXEL} (RGB-пиксели).")
+        
+        # Инициализация словаря всеми возможными RGB значениями
+        dictionary = {
+            bytes([r, g, b]): i for i, (r, g, b) in enumerate(
+                ((r, g, b) 
+                    for r in range(256) 
+                    for g in range(256) 
+                    for b in range(256)
+                )
+            )
+        }
+        chain_count = len(dictionary)
+        
+        max_number_of_chains = pow(2, self.code_size * 8)
         curr_msg = bytes()
         result = []
 
-        size_data = len(data)
+        codes: list[bytes] = re.findall(rb"[\x00-\xff]{%d}" % BYTES_AMOUNT_PER_PIXEL, data)
+        size_data = len(codes)
+
         bar = self.__init_progressbar(
             name="Сжатие методом LZW",
             size=size_data,
         )
-        for i, byte in enumerate(data):
-            curr_char = bytes([byte])
-            if curr_msg + curr_char in dictionary:
-                curr_msg += curr_char
+        for i, code in enumerate(codes):
+            if curr_msg + code in dictionary:
+                curr_msg += code
             else:
                 # Добавляем код текущей последовательности в результат
                 result.append(dictionary[curr_msg])
                 # Добавляем новую цепочку в словарь
                 if chain_count < max_number_of_chains:
-                    dictionary[curr_msg + curr_char] = chain_count
+                    dictionary[curr_msg + code] = chain_count
                     chain_count += 1
 
-                curr_msg = curr_char
+                curr_msg = code
             
             self.__update_progressbar(
-                iteration=i + 1,
-                size=size_data,
+                iteration=i + 1, 
+                size=size_data
             )
             bar.next()
         bar.finish()
@@ -52,11 +69,11 @@ class LZW:
         if curr_msg:
             result.append(dictionary[curr_msg])
 
-        self.text_editor.insert(END, f"Кол-во цепочек байт в словаре: {chain_count}\n")
-        self.text_editor.insert(END, "Среднее число байт в цепочках: {:.2f}\n".format(size_data / chain_count))
+        self.text_editor.insert(END, f"Кол-во цепочек пикселей в словаре: {chain_count}\n")
+        self.text_editor.insert(END, "Среднее число пикселей в цепочках: {:.2f}\n".format(size_data / chain_count))
         self.text_editor.update()
-        print(f"\nКол-во цепочек байт в словаре: {chain_count}")
-        print("\nСреднее число байт в цепочках: {:.2f}".format(size_data / chain_count))
+        print(f"\nКол-во цепочек пикселей в словаре: {chain_count}")
+        print("\nСреднее число пикселей в цепочках: {:.2f}".format(size_data / chain_count))
 
         # Преобразуем результат в байты
         compressed_data = b''.join(
@@ -65,9 +82,20 @@ class LZW:
         return compressed_data
     
     def decompress(self, data: bytes) -> bytes:
-        inverted_dict = {i: bytes([i]) for i in range(256)}
-        chain_count = 256
-        max_number_of_chains = pow(256, self.code_size)
+        """Распаковка данных с 3-байтовыми RGB-последовательностями."""
+        # Инициализация словаря всеми возможными 3-байтовыми значениями
+        inverted_dict = {
+            i: bytes([r, g, b]) for i, (r, g, b) in enumerate(
+                ((r, g, b) 
+                    for r in range(256) 
+                    for g in range(256) 
+                    for b in range(256)
+                )
+            )
+        }
+        chain_count = len(inverted_dict)
+
+        max_number_of_chains = pow(2, self.code_size * 8)
 
         # Разбиваем данные на n-байтовые коды
         codes = [
@@ -90,7 +118,7 @@ class LZW:
                 chain = inverted_dict[code]
             elif code == chain_count:
                 # Специальный случай: новый код, равный следующему индексу
-                chain = prev_chain + prev_chain[:1]
+                chain = prev_chain + prev_chain[:BYTES_AMOUNT_PER_PIXEL]
             else:
                 raise ValueError("Неверный код в сжатых данных")
 
@@ -98,14 +126,14 @@ class LZW:
 
             # Добавляем новую цепочку в словарь
             if chain_count < max_number_of_chains:
-                inverted_dict[chain_count] = prev_chain + chain[:1]
+                inverted_dict[chain_count] = prev_chain + chain[:BYTES_AMOUNT_PER_PIXEL]
                 chain_count += 1
 
             prev_chain = chain
 
             self.__update_progressbar(
-                iteration=i + 1,
-                size=size_data,
+                iteration=i + 1, 
+                size=size_data
             )
             bar.next()
         bar.finish()

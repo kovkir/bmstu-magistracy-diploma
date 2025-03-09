@@ -15,9 +15,9 @@ source venv/bin/activate
 ```bash
 pip install -r requirements.txt
 ```
-* Создание директории __output_date__ для сжатого и распакованного изображений (в случае ее отсутствия)
+* Создание директории __output_data__ для сжатого и распакованного изображений (в случае ее отсутствия)
 ```bash
-mkdir output_date
+mkdir output_data
 ```
 * Переход в директорию с проектом
 ```bash

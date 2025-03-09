@@ -358,7 +358,7 @@ class Window():
     def startEncryption(self) -> None:
         method = CompressionMethods(self.methodVar.get())
         if method == CompressionMethods.HUFFMAN:
-            codeSize = 1
+            codeSize = BYTES_AMOUNT_PER_PIXEL
         else:
             codeSize = self.getCodeSize()
             if codeSize is None:
@@ -384,7 +384,8 @@ class Window():
         )
         compressor.decompress(
             outputDirectory + "/compressed.bin",
-            outputDirectory + "/decompressed." + inputFile.split(".")[-1],
+            # outputDirectory + "/decompressed." + inputFile.split(".")[-1],
+            outputDirectory + "/decompressed.bmp",
         )
 
     def getOutputDirectory(self) -> str | None:
@@ -437,5 +438,8 @@ class Window():
     def run(self):
         self.codeSizeEntry.insert(0, CODE_SIZE_IN_BYTES)
         self.methodVar.set(CompressionMethods.HYBRID.value)
+
+        self.inputFilenameEntry.insert(0, "/Users/kirill/Documents/bmstu/magistracy_diploma/input_data/heart.bmp")
+        self.outputDirectoryEntry.insert(0, "/Users/kirill/Documents/bmstu/magistracy_diploma/output_data")
 
         self.window.mainloop()

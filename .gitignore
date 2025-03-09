@@ -4,4 +4,4 @@ __pycache__/
 .vscode/
 .DS_Store
 
-output_date/
+output_data/
