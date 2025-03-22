@@ -1,4 +1,5 @@
 from PIL import Image
+from os.path import getsize
 from tkinter import Text, END
 from tkinter.ttk import Progressbar
 
@@ -22,83 +23,72 @@ class Compression():
         self.method = method
 
     def compress(self, input_file_name: str, output_file_name: str) -> None:
-        output_file = open(output_file_name, "wb")
-
+        size = self.__get_file_size(getsize(input_file_name))
+        self.text_editor.insert(END, f"Размер изначального файла: {size}\n")
+        self.text_editor.update()
+        print(f"\nРазмер изначального файла: {size}")
+        
         image = Image.open(input_file_name)
         image = image.convert("RGB")
         data = image.tobytes()
         self.width, self.height = image.size
 
-        size = self.__get_file_size(len(data))
-        self.text_editor.insert(END, f"Размер изначального файла: {size}\n")
-        self.text_editor.update()
-        print(f"\nРазмер изначального файла: {size}")
-        
         match self.method:
             case CompressionMethods.HYBRID:
                 lzw_compressed = self.lzw.compress(data)
+
                 self.huffman.fill_frequency_table(lzw_compressed)
                 self.huffman.build_tree()
 
-                huffman_compressed = self.huffman.compress(lzw_compressed)
-                output_file.write(huffman_compressed)
-                size = self.__get_file_size(len(huffman_compressed))
+                compressed = self.huffman.compress(lzw_compressed)
                 method_str = "LZW + Хаффман"
             case CompressionMethods.HUFFMAN:
                 self.huffman.fill_frequency_table(data)
                 self.huffman.build_tree()
 
-                huffman_compressed = self.huffman.compress(data)
-                output_file.write(huffman_compressed)
-                size = self.__get_file_size(len(huffman_compressed))
+                compressed = self.huffman.compress(data)
                 method_str = "Хаффман"
             case _:
-                lzw_compressed = self.lzw.compress(data)
-                output_file.write(lzw_compressed)
-                size = self.__get_file_size(len(lzw_compressed))
+                compressed = self.lzw.compress(data)
                 method_str = "LZW"
 
+        with open(output_file_name, "wb") as f:
+            f.write(compressed)
+
+        size = self.__get_file_size(getsize(output_file_name))
         self.text_editor.insert(END, f"Размер сжатого файла: {size}\n")
         self.text_editor.update()
         print(f"\nРазмер сжатого файла: {size}")
-
-        # input_file.close()
-        output_file.close()
 
         self.text_editor.insert(END, f"Файл успешно сжат ({method_str})\n\n")
         self.text_editor.update()
         print(f"{purple}\nФайл успешно сжат ({method_str}){base_color}")
 
     def decompress(self, input_file_name: str, output_file_name: str) -> None:
-        input_file = open(input_file_name, "rb")
-        bytesStr = input_file.read()
-        if not bytesStr:
-            return None
+        with open(input_file_name, "rb") as f:
+            bytesStr = f.read()
+            if not bytesStr:
+                return None
 
         match self.method:
             case CompressionMethods.HYBRID:
                 huffman_decompressed = self.huffman.decompress(bytesStr)
-                lzw_decompressed = self.lzw.decompress(huffman_decompressed)
-                image = Image.frombytes("RGB", (self.width, self.height), lzw_decompressed)
-                size = self.__get_file_size(len(lzw_decompressed))
+                decompressed = self.lzw.decompress(huffman_decompressed)
                 method_str = "LZW + Хаффман"
             case CompressionMethods.HUFFMAN:
-                huffman_decompressed = self.huffman.decompress(bytesStr)
-                image = Image.frombytes("RGB", (self.width, self.height), huffman_decompressed)
-                size = self.__get_file_size(len(huffman_decompressed))
+                decompressed = self.huffman.decompress(bytesStr)
                 method_str = "Хаффман"
             case _:
-                lzw_decompressed = self.lzw.decompress(bytesStr)
-                image = Image.frombytes("RGB", (self.width, self.height), lzw_decompressed)
-                size = self.__get_file_size(len(lzw_decompressed))
+                decompressed = self.lzw.decompress(bytesStr)
                 method_str = "LZW"
 
+        image = Image.frombytes("RGB", (self.width, self.height), decompressed)
+        image.save(output_file_name, "BMP")
+
+        size = self.__get_file_size(getsize(output_file_name))
         self.text_editor.insert(END, f"Размер распакованного файла: {size}\n")
         self.text_editor.update()
         print(f"\nРазмер распакованного файла: {size}")
-
-        input_file.close()
-        image.save(output_file_name, "BMP")
 
         self.text_editor.insert(END, f"Файл успешно распакован ({method_str})\n\n")
         self.text_editor.update()

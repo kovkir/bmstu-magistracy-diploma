@@ -21,25 +21,17 @@ class LZW:
         """Сжатие данных с 3-байтовыми последовательностями (RGB)."""
         if len(data) % BYTES_AMOUNT_PER_PIXEL != 0:
             raise ValueError(f"Размер данных должен быть кратен {BYTES_AMOUNT_PER_PIXEL} (RGB-пиксели).")
-        
-        # Инициализация словаря всеми возможными RGB значениями
-        dictionary = {
-            bytes([r, g, b]): i for i, (r, g, b) in enumerate(
-                ((r, g, b) 
-                    for r in range(256) 
-                    for g in range(256) 
-                    for b in range(256)
-                )
-            )
-        }
+
+        codes: list[bytes] = re.findall(b"[\x00-\xff]{%d}" % BYTES_AMOUNT_PER_PIXEL, data)
+        size_data = len(codes)
+
+        self.initial_dictionary = self.__get_initial_dictionary(codes)
+        dictionary = self.initial_dictionary.copy()
         chain_count = len(dictionary)
-        
+
         max_number_of_chains = pow(2, self.code_size * 8)
         curr_msg = bytes()
         result = []
-
-        codes: list[bytes] = re.findall(rb"[\x00-\xff]{%d}" % BYTES_AMOUNT_PER_PIXEL, data)
-        size_data = len(codes)
 
         bar = self.__init_progressbar(
             name="Сжатие методом LZW",
@@ -83,16 +75,7 @@ class LZW:
     
     def decompress(self, data: bytes) -> bytes:
         """Распаковка данных с 3-байтовыми RGB-последовательностями."""
-        # Инициализация словаря всеми возможными 3-байтовыми значениями
-        inverted_dict = {
-            i: bytes([r, g, b]) for i, (r, g, b) in enumerate(
-                ((r, g, b) 
-                    for r in range(256) 
-                    for g in range(256) 
-                    for b in range(256)
-                )
-            )
-        }
+        inverted_dict = {v: k for k, v in self.initial_dictionary.items()}
         chain_count = len(inverted_dict)
 
         max_number_of_chains = pow(2, self.code_size * 8)
@@ -139,6 +122,21 @@ class LZW:
         bar.finish()
 
         return bytes(result)
+    
+    def __get_initial_dictionary(self, codes: list[bytes]) -> dict[bytes, int]:
+        dictionary = {}
+        chain_count = 0
+        for code in codes:
+            if code not in dictionary:
+                dictionary[code] = chain_count
+                chain_count += 1
+
+        size = len(dictionary)
+        self.text_editor.insert(END, f"Кол-во различных пикселей в изображении: {size}\n")
+        self.text_editor.update()
+        print(f"\nКол-во различных пикселей в изображении: {size}")
+
+        return dictionary
     
     def __init_progressbar(self, name: str, size: int) -> IncrementalBar:
         self.text_editor.insert(END, f"{name}\n")
