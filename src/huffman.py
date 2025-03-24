@@ -30,7 +30,9 @@ class Huffman():
         )
         for i, code in enumerate(codes):
             if code not in self.frequency_table:
-                self.frequency_table[code] = codes.count(code)
+                self.frequency_table[code] = 1
+            else: 
+                self.frequency_table[code] += 1
 
             self.__update_progressbar(
                 iteration=i + 1,
@@ -39,16 +41,17 @@ class Huffman():
             bar.next()
         bar.finish()
 
-        print(f"\nРазмер таблицы частот символов: {len(self.frequency_table)}")
+        size_table = len(self.frequency_table)
+        print(f"\nРазмер таблицы частот символов: {size_table}")
 
         self.text_editor.insert(
             END, 
             "Среднее кол-во повторных использований цепочек байт: {:.2f}\n".format(
-            size_data / len(self.frequency_table)
+            size_data / size_table
         ))
         self.text_editor.update()
         print("\nСреднее кол-во повторных использований цепочек байт: {:.2f}".format(
-            size_data / len(self.frequency_table)
+            size_data / size_table
         ))
 
     def build_tree(self) -> None:
@@ -83,7 +86,7 @@ class Huffman():
             bits=bitarray(bits_str), 
             multiplicity=8,
         )
-  
+
         return self.__to_bytes(bits)
 
     def decompress(self, data: bytes) -> bytes:
@@ -97,12 +100,12 @@ class Huffman():
         )
         bytes_str = bytes()
         amount_processed_chars = 0
-        while len(bits_str) > 0:
-            byte_sequence, len_symbol = \
-                self.__get_decompressed_symbol(bits_str)
-
+        while amount_processed_chars < size_data:
+            byte_sequence, len_symbol = self.__get_decompressed_symbol(
+                bits_str=bits_str, 
+                initial_index=amount_processed_chars,
+            )
             bytes_str += byte_sequence
-            bits_str = bits_str[len_symbol:]
             amount_processed_chars += len_symbol
 
             self.__update_progressbar(
@@ -132,12 +135,13 @@ class Huffman():
     def __get_decompressed_symbol(
         self, 
         bits_str: str,
+        initial_index: int,
     ) -> tuple[bytes, int] | None:
-        for i in range(1, len(bits_str) + 1):
+        for i in range(initial_index, len(bits_str) + 1):
             # обход дерева в поисках символа переданного кода
-            symbol = self.tree.get_symbol_by_code(bits_str[:i])
+            symbol = self.tree.get_symbol_by_code(bits_str[initial_index:i])
             if symbol != None:
-                return symbol, i
+                return symbol, i - initial_index
             # иначе не дошли до конца дерева, надо взять больший код
 
     def __init_progressbar(self, name: str, size: int) -> IncrementalBar:

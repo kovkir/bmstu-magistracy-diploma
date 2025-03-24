@@ -25,8 +25,8 @@ class LZW:
         codes: list[bytes] = re.findall(b"[\x00-\xff]{%d}" % BYTES_AMOUNT_PER_PIXEL, data)
         size_data = len(codes)
 
-        self.initial_dictionary = self.__get_initial_dictionary(codes)
-        dictionary = self.initial_dictionary.copy()
+        self.unique_pixels = self.__get_unique_pixels(codes)
+        dictionary = self.__get_initial_dictionary(self.unique_pixels)
         chain_count = len(dictionary)
 
         max_number_of_chains = pow(2, self.code_size * 8)
@@ -75,7 +75,7 @@ class LZW:
     
     def decompress(self, data: bytes) -> bytes:
         """Распаковка данных с 3-байтовыми RGB-последовательностями."""
-        inverted_dict = {v: k for k, v in self.initial_dictionary.items()}
+        inverted_dict = self.__get_inverted_initial_dictionary(self.unique_pixels)
         chain_count = len(inverted_dict)
 
         max_number_of_chains = pow(2, self.code_size * 8)
@@ -123,18 +123,34 @@ class LZW:
 
         return bytes(result)
     
-    def __get_initial_dictionary(self, codes: list[bytes]) -> dict[bytes, int]:
-        dictionary = {}
-        chain_count = 0
+    def __get_unique_pixels(self, codes: list[bytes]) -> list[bytes]:
+        pixels = []
         for code in codes:
-            if code not in dictionary:
-                dictionary[code] = chain_count
-                chain_count += 1
+            if code not in pixels:
+                pixels.append(code)
 
-        size = len(dictionary)
+        size = len(pixels)
         self.text_editor.insert(END, f"Кол-во различных пикселей в изображении: {size}\n")
         self.text_editor.update()
         print(f"\nКол-во различных пикселей в изображении: {size}")
+
+        return pixels
+    
+    def __get_initial_dictionary(self, pixels: list[bytes]) -> dict[bytes, int]:
+        dictionary = {}
+        chain_count = 0
+        for pixel in pixels:
+            dictionary[pixel] = chain_count
+            chain_count += 1
+
+        return dictionary
+    
+    def __get_inverted_initial_dictionary(self, pixels: list[bytes]) -> dict[int, bytes]:
+        dictionary = {}
+        chain_count = 0
+        for pixel in pixels:
+            dictionary[chain_count] = pixel
+            chain_count += 1
 
         return dictionary
     

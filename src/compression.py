@@ -21,6 +21,7 @@ class Compression():
         self.huffman = Huffman(code_size, text_editor, progressbar)
         self.text_editor = text_editor
         self.method = method
+        self.code_size = code_size
 
     def compress(self, input_file_name: str, output_file_name: str) -> None:
         size = self.__get_file_size(getsize(input_file_name))
@@ -42,15 +43,25 @@ class Compression():
 
                 compressed = self.huffman.compress(lzw_compressed)
                 method_str = "LZW + Хаффман"
+                size_data_to_decompress = self.__get_file_size(
+                    4 + 4 + 4 + 4 + len(self.lzw.unique_pixels) * self.code_size + \
+                        len(self.huffman.frequency_table) * (self.code_size + 4)
+                )
             case CompressionMethods.HUFFMAN:
                 self.huffman.fill_frequency_table(data)
                 self.huffman.build_tree()
 
                 compressed = self.huffman.compress(data)
                 method_str = "Хаффман"
+                size_data_to_decompress = self.__get_file_size(
+                    4 + 4 + 4 + len(self.huffman.frequency_table) * (self.code_size + 4)
+                )
             case _:
                 compressed = self.lzw.compress(data)
                 method_str = "LZW"
+                size_data_to_decompress = self.__get_file_size(
+                    4 + 4 + 4 + len(self.lzw.unique_pixels) * self.code_size
+                )
 
         with open(output_file_name, "wb") as f:
             f.write(compressed)
@@ -59,6 +70,10 @@ class Compression():
         self.text_editor.insert(END, f"Размер сжатого файла: {size}\n")
         self.text_editor.update()
         print(f"\nРазмер сжатого файла: {size}")
+
+        self.text_editor.insert(END, f"Размер информации для распаковки файла: {size_data_to_decompress}\n")
+        self.text_editor.update()
+        print(f"\nРазмер информации для распаковки файла: {size_data_to_decompress}")
 
         self.text_editor.insert(END, f"Файл успешно сжат ({method_str})\n\n")
         self.text_editor.update()
