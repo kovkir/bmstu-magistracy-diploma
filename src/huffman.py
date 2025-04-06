@@ -10,16 +10,14 @@ from tree import Tree
 class Huffman():
     def __init__(
         self,
-        code_size: int,
         text_editor: Text,
         progressbar: Progressbar,
     ) -> None:
-        self.code_size = code_size
         self.text_editor = text_editor
         self.progressbar = progressbar
 
-    def fill_frequency_table(self, bytes_str: bytes) -> None:
-        codes: list[bytes] = re.findall(rb"[\x00-\xff]{%d}" % self.code_size, bytes_str)
+    def fill_frequency_table(self, bytes_str: bytes, code_size: int) -> None:
+        codes: list[bytes] = re.findall(rb"[\x00-\xff]{%d}" % code_size, bytes_str)
         size_data = len(codes)
 
         self.frequency_table = {}
@@ -42,14 +40,25 @@ class Huffman():
         bar.finish()
 
         size_table = len(self.frequency_table)
-        print(f"\nРазмер таблицы частот символов: {size_table}")
-
+        max_frequency = max(self.frequency_table.values())
+        self.frequency_size_in_bytes = self.__calculate_number_size_in_bytes(max_frequency)
+        
+        self.text_editor.insert(END, f"Размер таблицы частот символов: {size_table}\n")
+        self.text_editor.insert(
+            END, 
+            "Максимальная частота символа: {} ({} байт(а) на сохранение частоты символа)) \n".format(
+            max_frequency, self.frequency_size_in_bytes
+        ))
         self.text_editor.insert(
             END, 
             "Среднее кол-во повторных использований цепочек байт: {:.2f}\n".format(
             size_data / size_table
         ))
         self.text_editor.update()
+        print(f"\nРазмер таблицы частот символов: {size_table}")
+        print("\nМаксимальная частота символа: {} ({} байт(а) на сохранение частоты)".format(
+            max_frequency, self.frequency_size_in_bytes
+        ))
         print("\nСреднее кол-во повторных использований цепочек байт: {:.2f}".format(
             size_data / size_table
         ))
@@ -61,8 +70,8 @@ class Huffman():
             progressbar=self.progressbar,
         )
 
-    def compress(self, data: bytes) -> bytes:
-        codes: list[bytes] = re.findall(rb"[\x00-\xff]{%d}" % self.code_size, data)
+    def compress(self, data: bytes, code_size: int) -> bytes:
+        codes: list[bytes] = re.findall(rb"[\x00-\xff]{%d}" % code_size, data)
         size_data = len(codes)
 
         bar = self.__init_progressbar(
@@ -159,3 +168,7 @@ class Huffman():
         if self.progressbar['value'] + 5 <= percent:
             self.progressbar['value'] = percent
             self.progressbar.update()
+
+    def __calculate_number_size_in_bytes(self, number: int) -> int:
+        return (number.bit_length() + 7) // 8
+    

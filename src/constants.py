@@ -4,8 +4,6 @@ from enum import Enum
 WINDOW_WIDTH  = 1100
 WINDOW_HEIGHT = 660
 
-# размер кода в байтах для метода LZW в байтах
-CODE_SIZE_IN_BYTES = 4
 # количество байт на пиксель
 BYTES_AMOUNT_PER_PIXEL = 3
 

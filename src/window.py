@@ -42,39 +42,15 @@ class Window():
 
     def createInterface(self, windowWidth: int, windowHeight: int):
         Label(
-            text = "ВХОДНЫЕ ДАННЫЕ", 
-            font = ("Arial", 16, "bold"), 
-            bg = PURPLE_DARK, 
+            text = "ВХОДНЫЕ ДАННЫЕ",
+            font = ("Arial", 16, "bold"),
+            bg = PURPLE_DARK,
             fg = "white",
         ).place(
-            width = windowWidth, 
-            height = 30, 
-            x = 0 , 
+            width = windowWidth,
+            height = 30,
+            x = 0,
             y = 10,
-        )
-
-        Label(
-            text = "Размер кода для метода LZW в байтах", 
-            font = ("Arial", 16), 
-            bg = PURPLE_LIGHT, 
-            fg = PURPLE_SUPER_DARK,
-        ).place(
-            width = windowWidth * 0.38, 
-            height = 30, 
-            x = windowWidth * 0.1, 
-            y = 50,
-        )
-        self.codeSizeEntry = Entry(
-            font = ("Arial", 14),
-            bg = "white", 
-            fg = PURPLE_SUPER_DARK,
-            highlightbackground = PURPLE_DARK,
-        )
-        self.codeSizeEntry.place(
-            width = windowWidth * 0.38, 
-            height = 30, 
-            x = windowWidth * 0.52, 
-            y = 50,
         )
 
         Label(
@@ -84,9 +60,9 @@ class Window():
             fg = PURPLE_SUPER_DARK,
         ).place(
             width = windowWidth * 0.38, 
-            height = 30, 
+            height = 35, 
             x = windowWidth * 0.1, 
-            y = 90,
+            y = 50,
         )
         self.inputFilenameEntry = Entry(
             font = ("Arial", 14),
@@ -95,10 +71,10 @@ class Window():
             highlightbackground = PURPLE_DARK,
         )
         self.inputFilenameEntry.place(
-            width = windowWidth * 0.38, 
-            height = 30, 
-            x = windowWidth * 0.52, 
-            y = 90,
+            width = windowWidth * 0.8, 
+            height = 35, 
+            x = windowWidth * 0.1, 
+            y = 95,
         )
 
         Label(
@@ -108,9 +84,9 @@ class Window():
             fg = PURPLE_SUPER_DARK,
         ).place(
             width = windowWidth * 0.38, 
-            height = 30, 
+            height = 35, 
             x = windowWidth * 0.1, 
-            y = 130,
+            y = 140,
         )
         self.outputDirectoryEntry = Entry(
             font = ("Arial", 14),
@@ -119,10 +95,10 @@ class Window():
             highlightbackground = PURPLE_DARK,
         )
         self.outputDirectoryEntry.place(
-            width = windowWidth * 0.38, 
-            height = 30, 
-            x = windowWidth * 0.52, 
-            y = 130,
+            width = windowWidth * 0.8, 
+            height = 35, 
+            x = windowWidth * 0.1, 
+            y = 185,
         )
         
         Button(
@@ -132,9 +108,9 @@ class Window():
             state = DISABLED,
         ).place(
             width = windowWidth * 0.38, 
-            height = 40, 
-            x = windowWidth * 0.1, 
-            y = 170,
+            height = 35, 
+            x = windowWidth * 0.52, 
+            y = 50,
         )
         Button(
             text = "Выбрать исходный файл", 
@@ -145,9 +121,9 @@ class Window():
             command = lambda: self.setInputFilenameEntry(),
         ).place(
             width = windowWidth * 0.38 - 4, 
-            height = 36, 
-            x = windowWidth * 0.1 + 2, 
-            y = 172,
+            height = 31, 
+            x = windowWidth * 0.52 + 2, 
+            y = 52,
         )
         
         Button(
@@ -157,9 +133,9 @@ class Window():
             state = DISABLED,
         ).place(
             width = windowWidth * 0.38, 
-            height = 40, 
+            height = 35, 
             x = windowWidth * 0.52, 
-            y = 170,
+            y = 140,
         )
         Button(
             text = "Выбрать директорию для результатов", 
@@ -170,9 +146,9 @@ class Window():
             command = lambda: self.setOutputDirectoryEntry(),
         ).place(
             width = windowWidth * 0.38 - 4, 
-            height = 36, 
+            height = 31, 
             x = windowWidth * 0.52 + 2, 
-            y = 172,
+            y = 142,
         )
 
         self.methodVar = IntVar()
@@ -188,7 +164,7 @@ class Window():
             width = windowWidth * 0.35, 
             height = 30, 
             x = windowWidth * 0.1, 
-            y = 220,
+            y = 230,
         )
         Radiobutton(
             text = "Метод Хаффмана", 
@@ -201,7 +177,7 @@ class Window():
             width = windowWidth * 0.2, 
             height = 30, 
             x = windowWidth * 0.45,
-            y = 220,
+            y = 230,
         )
         Radiobutton(
             text = "Метод LZW", 
@@ -214,7 +190,7 @@ class Window():
             width = windowWidth * 0.2, 
             height = 30, 
             x = windowWidth * 0.7, 
-            y = 220,
+            y = 230,
         )
 
         Label(
@@ -226,7 +202,7 @@ class Window():
             width = windowWidth, 
             height = 30, 
             x = 0, 
-            y = 260,
+            y = 270,
         )
         self.textEditor = Text(
             font = ("Arial", 16), 
@@ -238,8 +214,10 @@ class Window():
             width = windowWidth, 
             height = 240, 
             x = 0, 
-            y = 300,
+            y = 310,
         )
+        self.textEditor.tag_configure("bold", font=("Arial", 16, "bold"))
+        self.textEditor.tag_configure("center", justify="center")
 
         progressbarLabel = Label(
             bg = "white", 
@@ -247,7 +225,7 @@ class Window():
         progressbarLabel.place(
             width = windowWidth,
             x = 0,
-            y = 540,
+            y = 550,
         )
         self.progressbar = Progressbar(
             progressbarLabel,
@@ -265,7 +243,7 @@ class Window():
             width = windowWidth, 
             height = 30, 
             x = 0 ,
-            y = windowHeight - 90,
+            y = windowHeight - 85,
         )
 
         Button(
@@ -275,9 +253,9 @@ class Window():
             state = DISABLED,
         ).place(
             width = windowWidth * 0.24, 
-            height = 40, 
+            height = 35, 
             x = windowWidth * 0.1, 
-            y = windowHeight - 50,
+            y = windowHeight - 45,
         )
         Button(
             text = "Сжать и рапаковать", 
@@ -288,9 +266,9 @@ class Window():
             command = lambda: self.startEncryption(),
         ).place(
             width = windowWidth * 0.24 - 4, 
-            height = 36, 
+            height = 31, 
             x = windowWidth * 0.1 + 2, 
-            y = windowHeight - 48,
+            y = windowHeight - 43,
         )
 
         Button(
@@ -300,9 +278,9 @@ class Window():
             state = DISABLED,
         ).place(
             width = windowWidth * 0.24, 
-            height = 40, 
+            height = 35, 
             x = windowWidth * 0.38, 
-            y = windowHeight - 50,
+            y = windowHeight - 45,
         )
         Button(
             text = "Сравнить методы", 
@@ -313,9 +291,9 @@ class Window():
             command = lambda: self.aboutProgram(),
         ).place(
             width = windowWidth * 0.24 - 4, 
-            height = 36, 
+            height = 31, 
             x = windowWidth * 0.38 + 2, 
-            y = windowHeight - 48,
+            y = windowHeight - 43,
         )
 
         Button(
@@ -325,9 +303,9 @@ class Window():
             state = DISABLED,
         ).place(
             width = windowWidth * 0.24, 
-            height = 40, 
+            height = 35, 
             x = windowWidth * 0.66, 
-            y = windowHeight - 50,
+            y = windowHeight - 45,
         )
         Button(
             text = "О программе", 
@@ -338,9 +316,9 @@ class Window():
             command = lambda: self.aboutProgram(),
         ).place(
             width = windowWidth * 0.24 - 4, 
-            height = 36, 
+            height = 31, 
             x = windowWidth * 0.66 + 2, 
-            y = windowHeight - 48,
+            y = windowHeight - 43,
         )
 
     def setInputFilenameEntry(self) -> None:
@@ -357,13 +335,7 @@ class Window():
     
     def startEncryption(self) -> None:
         method = CompressionMethods(self.methodVar.get())
-        if method == CompressionMethods.HUFFMAN:
-            codeSize = BYTES_AMOUNT_PER_PIXEL
-        else:
-            codeSize = self.getCodeSize()
-            if codeSize is None:
-                return
-        
+    
         inputFile = self.getInputFile()
         if inputFile is None:
             return
@@ -374,7 +346,6 @@ class Window():
 
         compressor = Compression(
             method=method,
-            code_size=codeSize,
             text_editor=self.textEditor,
             progressbar=self.progressbar,
         )
@@ -384,7 +355,6 @@ class Window():
         )
         compressor.decompress(
             outputDirectory + "/compressed.bin",
-            # outputDirectory + "/decompressed." + inputFile.split(".")[-1],
             outputDirectory + "/decompressed.bmp",
         )
 
@@ -409,23 +379,6 @@ class Window():
             return
         
         return path
-    
-    def getCodeSize(self) -> int | None:
-        try:
-            codeSize = int(self.codeSizeEntry.get())
-        except:
-            codeSize = None
-        
-        if codeSize is None or \
-           codeSize < 1 or codeSize > 8:
-            messagebox.showwarning(
-                "Ошибка",
-                "Невозможное значение размера кода для метода LZW в байтах!\n"
-                "Ожидался ввод натурального числа в диапазоне от 1 до 8."
-            )
-            return
-        
-        return codeSize
 
     def aboutProgram(self):
         messagebox.showinfo(
@@ -436,7 +389,6 @@ class Window():
         )
 
     def run(self):
-        self.codeSizeEntry.insert(0, CODE_SIZE_IN_BYTES)
         self.methodVar.set(CompressionMethods.HYBRID.value)
 
         self.inputFilenameEntry.insert(0, "/Users/kirill/Documents/bmstu/magistracy_diploma/input_data/heart.bmp")

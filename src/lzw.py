@@ -9,11 +9,9 @@ from constants import BYTES_AMOUNT_PER_PIXEL
 class LZW:
     def __init__(
         self,
-        code_size: int, 
         text_editor: Text,
         progressbar: Progressbar,
     ) -> None:
-        self.code_size = code_size
         self.text_editor = text_editor
         self.progressbar = progressbar
     
@@ -29,7 +27,6 @@ class LZW:
         dictionary = self.__get_initial_dictionary(self.unique_pixels)
         chain_count = len(dictionary)
 
-        max_number_of_chains = pow(2, self.code_size * 8)
         curr_msg = bytes()
         result = []
 
@@ -44,10 +41,8 @@ class LZW:
                 # Добавляем код текущей последовательности в результат
                 result.append(dictionary[curr_msg])
                 # Добавляем новую цепочку в словарь
-                if chain_count < max_number_of_chains:
-                    dictionary[curr_msg + code] = chain_count
-                    chain_count += 1
-
+                dictionary[curr_msg + code] = chain_count
+                chain_count += 1
                 curr_msg = code
             
             self.__update_progressbar(
@@ -61,9 +56,13 @@ class LZW:
         if curr_msg:
             result.append(dictionary[curr_msg])
 
+        self.code_size = self.__calculate_code_size(chain_count)
+
+        self.text_editor.insert(END, f"Размер кода для метода LZW в байтах: {self.code_size}\n")
         self.text_editor.insert(END, f"Кол-во цепочек пикселей в словаре: {chain_count}\n")
         self.text_editor.insert(END, "Среднее число пикселей в цепочках: {:.2f}\n".format(size_data / chain_count))
         self.text_editor.update()
+        print(f"\nРазмер кода для метода LZW в байтах: {self.code_size}")
         print(f"\nКол-во цепочек пикселей в словаре: {chain_count}")
         print("\nСреднее число пикселей в цепочках: {:.2f}".format(size_data / chain_count))
 
@@ -77,8 +76,6 @@ class LZW:
         """Распаковка данных с 3-байтовыми RGB-последовательностями."""
         inverted_dict = self.__get_inverted_initial_dictionary(self.unique_pixels)
         chain_count = len(inverted_dict)
-
-        max_number_of_chains = pow(2, self.code_size * 8)
 
         # Разбиваем данные на n-байтовые коды
         codes = [
@@ -108,10 +105,8 @@ class LZW:
             result.extend(chain)
 
             # Добавляем новую цепочку в словарь
-            if chain_count < max_number_of_chains:
-                inverted_dict[chain_count] = prev_chain + chain[:BYTES_AMOUNT_PER_PIXEL]
-                chain_count += 1
-
+            inverted_dict[chain_count] = prev_chain + chain[:BYTES_AMOUNT_PER_PIXEL]
+            chain_count += 1
             prev_chain = chain
 
             self.__update_progressbar(
@@ -169,3 +164,6 @@ class LZW:
         if self.progressbar['value'] + 5 <= percent:
             self.progressbar['value'] = percent
             self.progressbar.update()
+
+    def __calculate_code_size(self, number: int) -> int:
+        return (number.bit_length() + 7) // 8

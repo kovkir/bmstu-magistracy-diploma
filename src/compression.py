@@ -3,7 +3,7 @@ from os.path import getsize
 from tkinter import Text, END
 from tkinter.ttk import Progressbar
 
-from constants import CompressionMethods
+from constants import CompressionMethods, BYTES_AMOUNT_PER_PIXEL
 from huffman import Huffman
 from lzw import LZW
 from color import *
@@ -13,21 +13,28 @@ class Compression():
     def __init__(
         self,
         method: CompressionMethods,
-        code_size: int,
         text_editor: Text,
         progressbar: Progressbar,
     ) -> None:
-        self.lzw = LZW(code_size, text_editor, progressbar)
-        self.huffman = Huffman(code_size, text_editor, progressbar)
+        self.lzw = LZW(text_editor, progressbar)
+        self.huffman = Huffman(text_editor, progressbar)
         self.text_editor = text_editor
         self.method = method
-        self.code_size = code_size
 
     def compress(self, input_file_name: str, output_file_name: str) -> None:
-        size = self.__get_file_size(getsize(input_file_name))
-        self.text_editor.insert(END, f"Размер изначального файла: {size}\n")
+        short_filename = input_file_name.split("/")[-1]
+        size = getsize(input_file_name)
+        size_str = self.__get_file_size(size)
+
+        self.text_editor.insert(
+            END, 
+            f"Сжатие файла {short_filename} ({self.method.name})\n\n", 
+            ("bold", "center",)
+        )
+        self.text_editor.insert(END, f"Размер изначального файла: {size_str}\n")
         self.text_editor.update()
-        print(f"\nРазмер изначального файла: {size}")
+        print(f"\n{blue}Сжатие файла {short_filename} ({self.method.name}){base_color}")
+        print(f"\nРазмер изначального файла: {size_str}")
         
         image = Image.open(input_file_name)
         image = image.convert("RGB")
@@ -38,45 +45,45 @@ class Compression():
             case CompressionMethods.HYBRID:
                 lzw_compressed = self.lzw.compress(data)
 
-                self.huffman.fill_frequency_table(lzw_compressed)
+                self.huffman.fill_frequency_table(lzw_compressed, self.lzw.code_size)
                 self.huffman.build_tree()
 
-                compressed = self.huffman.compress(lzw_compressed)
+                compressed = self.huffman.compress(lzw_compressed, self.lzw.code_size)
                 method_str = "LZW + Хаффман"
-                size_data_to_decompress = self.__get_file_size(
-                    4 + 4 + 4 + 4 + len(self.lzw.unique_pixels) * self.code_size + \
-                        len(self.huffman.frequency_table) * (self.code_size + 4)
-                )
+                size_data_to_decompress = 4 + 4 + 4 + 4 + 4 + \
+                    len(self.lzw.unique_pixels) * BYTES_AMOUNT_PER_PIXEL + \
+                    len(self.huffman.frequency_table) * (self.lzw.code_size + self.huffman.frequency_size_in_bytes)
             case CompressionMethods.HUFFMAN:
-                self.huffman.fill_frequency_table(data)
+                self.huffman.fill_frequency_table(data, BYTES_AMOUNT_PER_PIXEL)
                 self.huffman.build_tree()
 
-                compressed = self.huffman.compress(data)
+                compressed = self.huffman.compress(data, BYTES_AMOUNT_PER_PIXEL)
                 method_str = "Хаффман"
-                size_data_to_decompress = self.__get_file_size(
-                    4 + 4 + 4 + len(self.huffman.frequency_table) * (self.code_size + 4)
-                )
+                size_data_to_decompress = 4 + 4 + 4 + 4 + \
+                    len(self.huffman.frequency_table) * (BYTES_AMOUNT_PER_PIXEL + self.huffman.frequency_size_in_bytes)
             case _:
                 compressed = self.lzw.compress(data)
                 method_str = "LZW"
-                size_data_to_decompress = self.__get_file_size(
-                    4 + 4 + 4 + len(self.lzw.unique_pixels) * self.code_size
-                )
+                size_data_to_decompress = 4 + 4 + 4 + \
+                    len(self.lzw.unique_pixels) * BYTES_AMOUNT_PER_PIXEL
 
         with open(output_file_name, "wb") as f:
             f.write(compressed)
 
-        size = self.__get_file_size(getsize(output_file_name))
-        self.text_editor.insert(END, f"Размер сжатого файла: {size}\n")
-        self.text_editor.update()
-        print(f"\nРазмер сжатого файла: {size}")
+        compressed_file_size = getsize(output_file_name)
+        compression_ratio = (size - compressed_file_size - size_data_to_decompress) / size * 100
 
-        self.text_editor.insert(END, f"Размер информации для распаковки файла: {size_data_to_decompress}\n")
-        self.text_editor.update()
-        print(f"\nРазмер информации для распаковки файла: {size_data_to_decompress}")
+        size_data_to_decompress_str = self.__get_file_size(size_data_to_decompress)
+        compressed_file_size_str = self.__get_file_size(compressed_file_size)
 
-        self.text_editor.insert(END, f"Файл успешно сжат ({method_str})\n\n")
+        self.text_editor.insert(END, f"Размер сжатого файла: {compressed_file_size_str}\n")
+        self.text_editor.insert(END, f"Размер информации для распаковки файла: {size_data_to_decompress_str}\n")
+        self.text_editor.insert(END, "Степень сжатия файла: {:2.2f}%\n".format(compression_ratio))
+        self.text_editor.insert(END, f"Файл успешно сжат ({method_str})\n", ("bold",))
         self.text_editor.update()
+        print(f"\nРазмер сжатого файла: {compressed_file_size_str}")
+        print(f"\nРазмер информации для распаковки файла: {size_data_to_decompress_str}")
+        print("\nСтепень сжатия файла: {:2.2f}%".format(compression_ratio))
         print(f"{purple}\nФайл успешно сжат ({method_str}){base_color}")
 
     def decompress(self, input_file_name: str, output_file_name: str) -> None:
@@ -100,13 +107,12 @@ class Compression():
         image = Image.frombytes("RGB", (self.width, self.height), decompressed)
         image.save(output_file_name, "BMP")
 
-        size = self.__get_file_size(getsize(output_file_name))
-        self.text_editor.insert(END, f"Размер распакованного файла: {size}\n")
-        self.text_editor.update()
-        print(f"\nРазмер распакованного файла: {size}")
+        size_str = self.__get_file_size(getsize(output_file_name))
 
-        self.text_editor.insert(END, f"Файл успешно распакован ({method_str})\n\n")
+        self.text_editor.insert(END, f"Размер распакованного файла: {size_str}\n")
+        self.text_editor.insert(END, f"Файл успешно распакован ({method_str})\n\n", ("bold",))
         self.text_editor.update()
+        print(f"\nРазмер распакованного файла: {size_str}")
         print(f"{purple}\nФайл успешно распакован ({method_str}){base_color}\n")
 
     def __get_file_size(self, bytes_count: int) -> str:
