@@ -16,21 +16,21 @@ class Huffman():
         self.text_editor = text_editor
         self.progressbar = progressbar
 
-    def fill_frequency_table(self, bytes_str: bytes, code_size: int) -> None:
+    def build_frequency_table(self, bytes_str: bytes, code_size: int) -> tuple[dict[bytes, int], int]:
         codes: list[bytes] = re.findall(rb"[\x00-\xff]{%d}" % code_size, bytes_str)
         size_data = len(codes)
 
-        self.frequency_table = {}
+        frequency_table = {}
 
         bar = self.__init_progressbar(
             name="Вычисление таблицы частот символов",
             size=size_data,
         )
         for i, code in enumerate(codes):
-            if code not in self.frequency_table:
-                self.frequency_table[code] = 1
+            if code not in frequency_table:
+                frequency_table[code] = 1
             else: 
-                self.frequency_table[code] += 1
+                frequency_table[code] += 1
 
             self.__update_progressbar(
                 iteration=i + 1,
@@ -39,15 +39,15 @@ class Huffman():
             bar.next()
         bar.finish()
 
-        size_table = len(self.frequency_table)
-        max_frequency = max(self.frequency_table.values())
-        self.frequency_size_in_bytes = self.__calculate_number_size_in_bytes(max_frequency)
+        size_table = len(frequency_table)
+        max_frequency = max(frequency_table.values())
+        frequency_size = self.__calculate_number_size_in_bytes(max_frequency)
         
         self.text_editor.insert(END, f"Размер таблицы частот символов: {size_table}\n")
         self.text_editor.insert(
             END, 
             "Максимальная частота символа: {} ({} байт(а) на сохранение частоты символа)) \n".format(
-            max_frequency, self.frequency_size_in_bytes
+            max_frequency, frequency_size
         ))
         self.text_editor.insert(
             END, 
@@ -57,15 +57,17 @@ class Huffman():
         self.text_editor.update()
         print(f"\nРазмер таблицы частот символов: {size_table}")
         print("\nМаксимальная частота символа: {} ({} байт(а) на сохранение частоты)".format(
-            max_frequency, self.frequency_size_in_bytes
+            max_frequency, frequency_size
         ))
         print("\nСреднее кол-во повторных использований цепочек байт: {:.2f}".format(
             size_data / size_table
         ))
 
-    def build_tree(self) -> None:
+        return frequency_table, frequency_size
+
+    def build_tree(self, frequency_table: dict[bytes, int]) -> None:
         self.tree = Tree(
-            frequency_table=self.frequency_table,
+            frequency_table=frequency_table,
             text_editor=self.text_editor,
             progressbar=self.progressbar,
         )

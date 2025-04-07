@@ -64,43 +64,7 @@ class Window():
             x = windowWidth * 0.1, 
             y = 50,
         )
-        self.inputFilenameEntry = Entry(
-            font = ("Arial", 14),
-            bg = "white", 
-            fg = PURPLE_SUPER_DARK,
-            highlightbackground = PURPLE_DARK,
-        )
-        self.inputFilenameEntry.place(
-            width = windowWidth * 0.8, 
-            height = 35, 
-            x = windowWidth * 0.1, 
-            y = 95,
-        )
-
-        Label(
-            text = "Путь до директории с результатами", 
-            font = ("Arial", 16), 
-            bg = PURPLE_LIGHT, 
-            fg = PURPLE_SUPER_DARK,
-        ).place(
-            width = windowWidth * 0.38, 
-            height = 35, 
-            x = windowWidth * 0.1, 
-            y = 140,
-        )
-        self.outputDirectoryEntry = Entry(
-            font = ("Arial", 14),
-            bg = "white", 
-            fg = PURPLE_SUPER_DARK,
-            highlightbackground = PURPLE_DARK,
-        )
-        self.outputDirectoryEntry.place(
-            width = windowWidth * 0.8, 
-            height = 35, 
-            x = windowWidth * 0.1, 
-            y = 185,
-        )
-        
+    
         Button(
             highlightbackground = PURPLE_DARK, 
             highlightthickness = 30, 
@@ -124,6 +88,31 @@ class Window():
             height = 31, 
             x = windowWidth * 0.52 + 2, 
             y = 52,
+        )
+
+        self.inputFilenameEntry = Entry(
+            font = ("Arial", 14),
+            bg = "white", 
+            fg = PURPLE_SUPER_DARK,
+            highlightbackground = PURPLE_DARK,
+        )
+        self.inputFilenameEntry.place(
+            width = windowWidth * 0.8, 
+            height = 35, 
+            x = windowWidth * 0.1, 
+            y = 95,
+        )
+
+        Label(
+            text = "Путь до директории с результатами", 
+            font = ("Arial", 16), 
+            bg = PURPLE_LIGHT, 
+            fg = PURPLE_SUPER_DARK,
+        ).place(
+            width = windowWidth * 0.38, 
+            height = 35, 
+            x = windowWidth * 0.1, 
+            y = 140,
         )
         
         Button(
@@ -151,6 +140,19 @@ class Window():
             y = 142,
         )
 
+        self.outputDirectoryEntry = Entry(
+            font = ("Arial", 14),
+            bg = "white", 
+            fg = PURPLE_SUPER_DARK,
+            highlightbackground = PURPLE_DARK,
+        )
+        self.outputDirectoryEntry.place(
+            width = windowWidth * 0.8, 
+            height = 35, 
+            x = windowWidth * 0.1, 
+            y = 185,
+        )
+
         self.methodVar = IntVar()
 
         Radiobutton(
@@ -174,7 +176,7 @@ class Window():
             fg = PURPLE_SUPER_DARK,
             anchor = "w",
         ).place(
-            width = windowWidth * 0.2, 
+            width = windowWidth * 0.25, 
             height = 30, 
             x = windowWidth * 0.45,
             y = 230,
@@ -391,7 +393,10 @@ class Window():
     def run(self):
         self.methodVar.set(CompressionMethods.HYBRID.value)
 
-        self.inputFilenameEntry.insert(0, "/Users/kirill/Documents/bmstu/magistracy_diploma/input_data/heart.bmp")
-        self.outputDirectoryEntry.insert(0, "/Users/kirill/Documents/bmstu/magistracy_diploma/output_data")
+        # self.inputFilenameEntry.insert(0, "/Users/kirill/Documents/bmstu/magistracy_diploma/input_data/heart.bmp")
+        # self.outputDirectoryEntry.insert(0, "/Users/kirill/Documents/bmstu/magistracy_diploma/output_data")
+
+        self.inputFilenameEntry.insert(0, "/home/pc/Документы/test/input_data/heart.bmp")
+        self.outputDirectoryEntry.insert(0, "/home/pc/Документы/test/output_data")
 
         self.window.mainloop()

@@ -1,3 +1,4 @@
+import re
 from PIL import Image
 from os.path import getsize
 from tkinter import Text, END
@@ -10,6 +11,12 @@ from color import *
 
 
 class Compression():
+    compression_methods_names = {
+        CompressionMethods.HYBRID: "LZW + Хаффман",
+        CompressionMethods.HUFFMAN: "Хаффман",
+        CompressionMethods.LZW: "LZW",
+    }
+
     def __init__(
         self,
         method: CompressionMethods,
@@ -23,17 +30,14 @@ class Compression():
 
     def compress(self, input_file_name: str, output_file_name: str) -> None:
         short_filename = input_file_name.split("/")[-1]
+        method_name = self.compression_methods_names[self.method]
         size = getsize(input_file_name)
         size_str = self.__get_file_size(size)
 
-        self.text_editor.insert(
-            END, 
-            f"Сжатие файла {short_filename} ({self.method.name})\n\n", 
-            ("bold", "center",)
-        )
+        self.text_editor.insert(END, f"Сжатие файла {short_filename} ({method_name})\n\n", ("bold", "center",))
         self.text_editor.insert(END, f"Размер изначального файла: {size_str}\n")
         self.text_editor.update()
-        print(f"\n{blue}Сжатие файла {short_filename} ({self.method.name}){base_color}")
+        print(f"\n{blue}Сжатие файла {short_filename} ({method_name}){base_color}")
         print(f"\nРазмер изначального файла: {size_str}")
         
         image = Image.open(input_file_name)
@@ -43,77 +47,156 @@ class Compression():
 
         match self.method:
             case CompressionMethods.HYBRID:
-                lzw_compressed = self.lzw.compress(data)
+                lzw_compressed, lzw_code_size, unique_pixels = self.lzw.compress(data)
+                frequency_table, frequency_size = self.huffman.build_frequency_table(
+                    bytes_str=lzw_compressed, 
+                    code_size=lzw_code_size
+                )
+                self.huffman.build_tree(frequency_table)
+                compressed = self.huffman.compress(lzw_compressed, lzw_code_size)
 
-                self.huffman.fill_frequency_table(lzw_compressed, self.lzw.code_size)
-                self.huffman.build_tree()
-
-                compressed = self.huffman.compress(lzw_compressed, self.lzw.code_size)
-                method_str = "LZW + Хаффман"
-                size_data_to_decompress = 4 + 4 + 4 + 4 + 4 + \
-                    len(self.lzw.unique_pixels) * BYTES_AMOUNT_PER_PIXEL + \
-                    len(self.huffman.frequency_table) * (self.lzw.code_size + self.huffman.frequency_size_in_bytes)
+                data_to_decompress = (
+                    self.width.to_bytes(4, byteorder='big') + 
+                    self.height.to_bytes(4, byteorder='big') + 
+                    lzw_code_size.to_bytes(4, byteorder='big') + 
+                    len(unique_pixels).to_bytes(4, byteorder='big') + 
+                    b''.join(unique_pixels) +
+                    frequency_size.to_bytes(4, byteorder='big') +
+                    len(frequency_table).to_bytes(4, byteorder='big') + 
+                    self.__convert_frequency_table_to_bytes(frequency_table, frequency_size)
+                )
             case CompressionMethods.HUFFMAN:
-                self.huffman.fill_frequency_table(data, BYTES_AMOUNT_PER_PIXEL)
-                self.huffman.build_tree()
-
+                frequency_table, frequency_size = self.huffman.build_frequency_table(
+                    bytes_str=data, 
+                    code_size=BYTES_AMOUNT_PER_PIXEL
+                )
+                self.huffman.build_tree(frequency_table)
                 compressed = self.huffman.compress(data, BYTES_AMOUNT_PER_PIXEL)
-                method_str = "Хаффман"
-                size_data_to_decompress = 4 + 4 + 4 + 4 + \
-                    len(self.huffman.frequency_table) * (BYTES_AMOUNT_PER_PIXEL + self.huffman.frequency_size_in_bytes)
+
+                data_to_decompress = (
+                    self.width.to_bytes(4, byteorder='big') + 
+                    self.height.to_bytes(4, byteorder='big') + 
+                    frequency_size.to_bytes(4, byteorder='big') +
+                    len(frequency_table).to_bytes(4, byteorder='big') + 
+                    self.__convert_frequency_table_to_bytes(frequency_table, frequency_size)
+                )
             case _:
-                compressed = self.lzw.compress(data)
-                method_str = "LZW"
-                size_data_to_decompress = 4 + 4 + 4 + \
-                    len(self.lzw.unique_pixels) * BYTES_AMOUNT_PER_PIXEL
+                compressed, lzw_code_size, unique_pixels = self.lzw.compress(data)
+
+                data_to_decompress = (
+                    self.width.to_bytes(4, byteorder='big') + 
+                    self.height.to_bytes(4, byteorder='big') + 
+                    lzw_code_size.to_bytes(4, byteorder='big') + 
+                    len(unique_pixels).to_bytes(4, byteorder='big') + 
+                    b''.join(unique_pixels)
+                )
 
         with open(output_file_name, "wb") as f:
-            f.write(compressed)
+            f.write(data_to_decompress + compressed)
 
         compressed_file_size = getsize(output_file_name)
-        compression_ratio = (size - compressed_file_size - size_data_to_decompress) / size * 100
-
-        size_data_to_decompress_str = self.__get_file_size(size_data_to_decompress)
         compressed_file_size_str = self.__get_file_size(compressed_file_size)
+        size_data_to_decompress_str = self.__get_file_size(len(data_to_decompress))
+        compression_ratio = (size - compressed_file_size) / size * 100
 
-        self.text_editor.insert(END, f"Размер сжатого файла: {compressed_file_size_str}\n")
+        self.text_editor.insert(END, f"Размер сжатого файла (вместе с информацией для распаковки): {compressed_file_size_str}\n")
         self.text_editor.insert(END, f"Размер информации для распаковки файла: {size_data_to_decompress_str}\n")
         self.text_editor.insert(END, "Степень сжатия файла: {:2.2f}%\n".format(compression_ratio))
-        self.text_editor.insert(END, f"Файл успешно сжат ({method_str})\n", ("bold",))
+        self.text_editor.insert(END, f"Файл успешно сжат ({method_name})\n", ("bold",))
         self.text_editor.update()
-        print(f"\nРазмер сжатого файла: {compressed_file_size_str}")
+        print(f"\nРазмер сжатого файла (вместе с информацией для распаковки): {compressed_file_size_str}")
         print(f"\nРазмер информации для распаковки файла: {size_data_to_decompress_str}")
         print("\nСтепень сжатия файла: {:2.2f}%".format(compression_ratio))
-        print(f"{purple}\nФайл успешно сжат ({method_str}){base_color}")
+        print(f"{purple}\nФайл успешно сжат ({method_name}){base_color}")
 
     def decompress(self, input_file_name: str, output_file_name: str) -> None:
         with open(input_file_name, "rb") as f:
-            bytesStr = f.read()
-            if not bytesStr:
+            bytes_str = f.read()
+            if not bytes_str:
                 return None
 
+        start = 0
         match self.method:
             case CompressionMethods.HYBRID:
-                huffman_decompressed = self.huffman.decompress(bytesStr)
-                decompressed = self.lzw.decompress(huffman_decompressed)
-                method_str = "LZW + Хаффман"
-            case CompressionMethods.HUFFMAN:
-                decompressed = self.huffman.decompress(bytesStr)
-                method_str = "Хаффман"
-            case _:
-                decompressed = self.lzw.decompress(bytesStr)
-                method_str = "LZW"
+                width = int.from_bytes(bytes_str[start:start + 4], byteorder='big')
+                start += 4
+                height = int.from_bytes(bytes_str[start:start + 4], byteorder='big')
+                start += 4
+                lzw_code_size = int.from_bytes(bytes_str[start:start + 4], byteorder='big')
+                start += 4
+                unique_pixels_count = int.from_bytes(bytes_str[start:start + 4], byteorder='big')
+                start += 4
+                unique_pixels = self.__convert_bytes_to_list_of_unique_pixels(
+                    byte_string=bytes_str[start:start + unique_pixels_count * BYTES_AMOUNT_PER_PIXEL],
+                )
+                start += unique_pixels_count * BYTES_AMOUNT_PER_PIXEL
+                frequency_size = int.from_bytes(bytes_str[start:start + 4], byteorder='big')
+                start += 4
+                frequency_table_size = int.from_bytes(bytes_str[start:start + 4], byteorder='big')
+                start += 4
+                frequency_table = self.__convert_bytes_to_frequency_table(
+                    byte_string=bytes_str[start:start + frequency_table_size * (lzw_code_size + frequency_size)],
+                    code_size=lzw_code_size,
+                    frequency_size=frequency_size,
+                )
+                start += frequency_table_size * (lzw_code_size + frequency_size)
 
-        image = Image.frombytes("RGB", (self.width, self.height), decompressed)
+                self.huffman.build_tree(frequency_table)
+                huffman_decompressed = self.huffman.decompress(bytes_str[start:])
+                decompressed = self.lzw.decompress(
+                    data=huffman_decompressed, 
+                    code_size=lzw_code_size, 
+                    unique_pixels=unique_pixels,
+                )
+            case CompressionMethods.HUFFMAN:
+                width = int.from_bytes(bytes_str[start:start + 4], byteorder='big')
+                start += 4
+                height = int.from_bytes(bytes_str[start:start + 4], byteorder='big')
+                start += 4
+                frequency_size = int.from_bytes(bytes_str[start:start + 4], byteorder='big')
+                start += 4
+                frequency_table_size = int.from_bytes(bytes_str[start:start + 4], byteorder='big')
+                start += 4
+                frequency_table = self.__convert_bytes_to_frequency_table(
+                    byte_string=bytes_str[start:start + frequency_table_size * (BYTES_AMOUNT_PER_PIXEL + frequency_size)],
+                    code_size=BYTES_AMOUNT_PER_PIXEL,
+                    frequency_size=frequency_size,
+                )
+                start += frequency_table_size * (BYTES_AMOUNT_PER_PIXEL + frequency_size)
+
+                self.huffman.build_tree(frequency_table)
+                decompressed = self.huffman.decompress(bytes_str[start:])
+            case _:
+                width = int.from_bytes(bytes_str[start:start + 4], byteorder='big')
+                start += 4
+                height = int.from_bytes(bytes_str[start:start + 4], byteorder='big')
+                start += 4
+                lzw_code_size = int.from_bytes(bytes_str[start:start + 4], byteorder='big')
+                start += 4
+                unique_pixels_count = int.from_bytes(bytes_str[start:start + 4], byteorder='big')
+                start += 4
+                unique_pixels = self.__convert_bytes_to_list_of_unique_pixels(
+                    byte_string=bytes_str[start:start + unique_pixels_count * BYTES_AMOUNT_PER_PIXEL],
+                )
+                start += unique_pixels_count * BYTES_AMOUNT_PER_PIXEL
+            
+                decompressed = self.lzw.decompress(
+                    data=bytes_str[start:], 
+                    code_size=lzw_code_size, 
+                    unique_pixels=unique_pixels,
+                )
+
+        image = Image.frombytes("RGB", (width, height), decompressed)
         image.save(output_file_name, "BMP")
 
         size_str = self.__get_file_size(getsize(output_file_name))
-
+        
+        method_name = self.compression_methods_names[self.method]
         self.text_editor.insert(END, f"Размер распакованного файла: {size_str}\n")
-        self.text_editor.insert(END, f"Файл успешно распакован ({method_str})\n\n", ("bold",))
+        self.text_editor.insert(END, f"Файл успешно распакован ({method_name})\n\n", ("bold",))
         self.text_editor.update()
         print(f"\nРазмер распакованного файла: {size_str}")
-        print(f"{purple}\nФайл успешно распакован ({method_str}){base_color}\n")
+        print(f"{purple}\nФайл успешно распакован ({method_name}){base_color}\n")
 
     def __get_file_size(self, bytes_count: int) -> str:
         kilobytes = bytes_count / 1024
@@ -130,3 +213,38 @@ class Compression():
             size = f"{bytes_count} Б"
 
         return size
+    
+    def __convert_frequency_table_to_bytes(
+        self,
+        frequency_table: dict[bytes, int],
+        frequency_size: int,
+    ) -> bytes:
+        byte_string = bytes()
+        for code, frequency in frequency_table.items():
+            byte_string += code
+            byte_string += frequency.to_bytes(frequency_size, byteorder='big')
+        
+        return byte_string
+    
+    def __convert_bytes_to_frequency_table(
+        self, 
+        byte_string: bytes,
+        code_size: int,
+        frequency_size: int,
+    ) -> dict[bytes, int]:
+        frequency_table = {}
+        for i in range(0, len(byte_string), code_size + frequency_size):
+            code = byte_string[i:i + code_size]
+            frequency = byte_string[i + code_size:i + code_size + frequency_size]
+            frequency_table[code] = int.from_bytes(frequency, byteorder='big')
+        
+        return frequency_table
+
+    def __convert_bytes_to_list_of_unique_pixels(
+        self, 
+        byte_string: bytes,
+    ) -> list[bytes]:
+        return re.findall(
+            rb"[\x00-\xff]{%d}" % BYTES_AMOUNT_PER_PIXEL, 
+            byte_string,
+        )

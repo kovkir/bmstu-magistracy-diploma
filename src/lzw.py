@@ -15,7 +15,7 @@ class LZW:
         self.text_editor = text_editor
         self.progressbar = progressbar
     
-    def compress(self, data: bytes) -> bytes:
+    def compress(self, data: bytes) -> tuple[bytes, int, list[bytes]]:
         """Сжатие данных с 3-байтовыми последовательностями (RGB)."""
         if len(data) % BYTES_AMOUNT_PER_PIXEL != 0:
             raise ValueError(f"Размер данных должен быть кратен {BYTES_AMOUNT_PER_PIXEL} (RGB-пиксели).")
@@ -23,8 +23,8 @@ class LZW:
         codes: list[bytes] = re.findall(b"[\x00-\xff]{%d}" % BYTES_AMOUNT_PER_PIXEL, data)
         size_data = len(codes)
 
-        self.unique_pixels = self.__get_unique_pixels(codes)
-        dictionary = self.__get_initial_dictionary(self.unique_pixels)
+        unique_pixels = self.__get_unique_pixels(codes)
+        dictionary = self.__get_initial_dictionary(unique_pixels)
         chain_count = len(dictionary)
 
         curr_msg = bytes()
@@ -56,31 +56,31 @@ class LZW:
         if curr_msg:
             result.append(dictionary[curr_msg])
 
-        self.code_size = self.__calculate_code_size(chain_count)
+        code_size = self.__calculate_code_size(chain_count)
 
-        self.text_editor.insert(END, f"Размер кода для метода LZW в байтах: {self.code_size}\n")
+        self.text_editor.insert(END, f"Размер кода для метода LZW в байтах: {code_size}\n")
         self.text_editor.insert(END, f"Кол-во цепочек пикселей в словаре: {chain_count}\n")
         self.text_editor.insert(END, "Среднее число пикселей в цепочках: {:.2f}\n".format(size_data / chain_count))
         self.text_editor.update()
-        print(f"\nРазмер кода для метода LZW в байтах: {self.code_size}")
+        print(f"\nРазмер кода для метода LZW в байтах: {code_size}")
         print(f"\nКол-во цепочек пикселей в словаре: {chain_count}")
         print("\nСреднее число пикселей в цепочках: {:.2f}".format(size_data / chain_count))
 
         # Преобразуем результат в байты
         compressed_data = b''.join(
-            code.to_bytes(self.code_size, byteorder='big') for code in result
+            code.to_bytes(code_size, byteorder='big') for code in result
         )
-        return compressed_data
+        return compressed_data, code_size, unique_pixels
     
-    def decompress(self, data: bytes) -> bytes:
+    def decompress(self, data: bytes, code_size: int, unique_pixels: list[bytes]) -> bytes:
         """Распаковка данных с 3-байтовыми RGB-последовательностями."""
-        inverted_dict = self.__get_inverted_initial_dictionary(self.unique_pixels)
+        inverted_dict = self.__get_inverted_initial_dictionary(unique_pixels)
         chain_count = len(inverted_dict)
 
         # Разбиваем данные на n-байтовые коды
         codes = [
-            int.from_bytes(data[i:i + self.code_size], byteorder='big')
-            for i in range(0, len(data), self.code_size)
+            int.from_bytes(data[i:i + code_size], byteorder='big')
+            for i in range(0, len(data), code_size)
         ]
 
         # Восстанавливаем данные
