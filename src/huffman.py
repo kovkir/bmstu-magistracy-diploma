@@ -15,8 +15,12 @@ class Huffman():
     ) -> None:
         self.text_editor = text_editor
         self.progressbar = progressbar
-
-    def build_frequency_table(self, bytes_str: bytes, code_size: int) -> tuple[dict[bytes, int], int]:
+    
+    def build_frequency_table(
+        self, 
+        bytes_str: bytes, 
+        code_size: int,
+    ) -> tuple[dict[bytes, int], int]:
         codes: list[bytes] = re.findall(rb"[\x00-\xff]{%d}" % code_size, bytes_str)
         size_data = len(codes)
 
@@ -65,14 +69,14 @@ class Huffman():
 
         return frequency_table, frequency_size
 
-    def build_tree(self, frequency_table: dict[bytes, int]) -> None:
-        self.tree = Tree(
+    def build_tree(self, frequency_table: dict[bytes, int]) -> Tree:
+        return Tree(
             frequency_table=frequency_table,
             text_editor=self.text_editor,
             progressbar=self.progressbar,
         )
 
-    def compress(self, data: bytes, code_size: int) -> bytes:
+    def compress(self, data: bytes, code_size: int, tree: Tree) -> bytes:
         codes: list[bytes] = re.findall(rb"[\x00-\xff]{%d}" % code_size, data)
         size_data = len(codes)
 
@@ -83,7 +87,7 @@ class Huffman():
         bits_str = ""
         for i, code in enumerate(codes):
             # обход дерева в поисках кода переданного символа
-            bits_str += self.tree.get_code_by_symbol(code)
+            bits_str += tree.get_code_by_symbol(code)
 
             self.__update_progressbar(
                 iteration=i + 1,
@@ -92,17 +96,16 @@ class Huffman():
             bar.next()
         bar.finish()
 
-        self.bits_in_msg_count = len(bits_str)
-        bits = self.__add_zeros_to_bits(
+        bits = self.__add_missing_bits(
             bits=bitarray(bits_str), 
             multiplicity=8,
         )
 
         return self.__to_bytes(bits)
 
-    def decompress(self, data: bytes) -> bytes:
+    def decompress(self, data: bytes, tree: Tree) -> bytes:
         bits = self.__to_bits(data)
-        bits_str = bits[:self.bits_in_msg_count].to01()
+        bits_str = self.__remove_extra_bits(bits).to01()
 
         size_data = len(bits_str)
         bar = self.__init_progressbar(
@@ -115,6 +118,7 @@ class Huffman():
             byte_sequence, len_symbol = self.__get_decompressed_symbol(
                 bits_str=bits_str, 
                 initial_index=amount_processed_chars,
+                tree=tree,
             )
             bytes_str += byte_sequence
             amount_processed_chars += len_symbol
@@ -128,12 +132,23 @@ class Huffman():
         
         return bytes_str
     
-    def __add_zeros_to_bits(
+    def __add_missing_bits(
         self, 
         bits: bitarray, 
         multiplicity: int,
     ) -> bitarray:
+        bits += bitarray("1")
         return bits + bitarray("0" * (len(bits) % multiplicity))
+    
+    def __remove_extra_bits(self, bits: bitarray) -> bitarray:
+        counter = 1
+        for i in range(len(bits) - 1, 0, -1):
+            if bits[i] == 0:
+                counter += 1
+            else:
+                break
+
+        return bits[:-counter]
 
     def __to_bytes(self, bits: bitarray) -> bytes:
         return bits.tobytes()
@@ -147,10 +162,11 @@ class Huffman():
         self, 
         bits_str: str,
         initial_index: int,
+        tree: Tree,
     ) -> tuple[bytes, int] | None:
         for i in range(initial_index, len(bits_str) + 1):
             # обход дерева в поисках символа переданного кода
-            symbol = self.tree.get_symbol_by_code(bits_str[initial_index:i])
+            symbol = tree.get_symbol_by_code(bits_str[initial_index:i])
             if symbol != None:
                 return symbol, i - initial_index
             # иначе не дошли до конца дерева, надо взять больший код
