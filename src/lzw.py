@@ -58,12 +58,12 @@ class LZW:
 
         code_size = self.__calculate_code_size(chain_count)
 
-        self.text_editor.insert(END, f"Размер кода для метода LZW в байтах: {code_size}\n")
         self.text_editor.insert(END, f"Кол-во цепочек пикселей в словаре: {chain_count}\n")
+        self.text_editor.insert(END, f"Размер кода для метода LZW в байтах: {code_size}\n")
         self.text_editor.insert(END, "Среднее число пикселей в цепочках: {:.2f}\n".format(size_data / chain_count))
         self.text_editor.update()
-        print(f"\nРазмер кода для метода LZW в байтах: {code_size}")
         print(f"\nКол-во цепочек пикселей в словаре: {chain_count}")
+        print(f"\nРазмер кода для метода LZW в байтах: {code_size}")
         print("\nСреднее число пикселей в цепочках: {:.2f}".format(size_data / chain_count))
 
         # Преобразуем результат в байты

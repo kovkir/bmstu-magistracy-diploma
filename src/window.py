@@ -15,6 +15,7 @@ from tkinter import (
 from tkinter.ttk import Progressbar
 
 from compression import Compression
+from comparison import plot_graph
 from constants import *
 from color import *
 
@@ -214,7 +215,7 @@ class Window():
         )
         self.textEditor.place(
             width = windowWidth, 
-            height = 240, 
+            height = windowHeight - 110 - 310, 
             x = 0, 
             y = 310,
         )
@@ -227,7 +228,7 @@ class Window():
         progressbarLabel.place(
             width = windowWidth,
             x = 0,
-            y = 550,
+            y = windowHeight - 110,
         )
         self.progressbar = Progressbar(
             progressbarLabel,
@@ -290,7 +291,7 @@ class Window():
             fg = PURPLE_SUPER_DARK,
             highlightbackground = PURPLE, 
             highlightthickness = 30, 
-            command = lambda: self.aboutProgram(),
+            command = lambda: plot_graph(IMAGE_PATHS, COMPRESSION_RATES),
         ).place(
             width = windowWidth * 0.24 - 4, 
             height = 31, 
@@ -393,10 +394,11 @@ class Window():
     def run(self):
         self.methodVar.set(CompressionMethods.HYBRID.value)
 
-        # self.inputFilenameEntry.insert(0, "/Users/kirill/Documents/bmstu/magistracy_diploma/input_data/heart.bmp")
-        # self.outputDirectoryEntry.insert(0, "/Users/kirill/Documents/bmstu/magistracy_diploma/output_data")
+        self.inputFilenameEntry.insert(0, "/Users/kirill/Documents/bmstu/magistracy_diploma/input_data/heart.bmp")
+        self.outputDirectoryEntry.insert(0, "/Users/kirill/Documents/bmstu/magistracy_diploma/output_data")
 
-        self.inputFilenameEntry.insert(0, "/home/pc/Документы/test/input_data/heart.bmp")
-        self.outputDirectoryEntry.insert(0, "/home/pc/Документы/test/output_data")
+        # self.inputFilenameEntry.insert(0, "/home/pc/Документы/test/input_data/heart.bmp")
+        # self.outputDirectoryEntry.insert(0, "/home/pc/Документы/test/output_data")
 
         self.window.mainloop()
+ 

@@ -97,16 +97,19 @@ class Compression():
 
         compressed_file_size = getsize(output_file_name)
         compressed_file_size_str = naturalsize(compressed_file_size)
+        compressed_data_size_str = naturalsize(len(compressed))
         size_data_to_decompress_str = naturalsize(len(data_to_decompress))
         compression_ratio = (size - compressed_file_size) / size * 100
 
-        self.text_editor.insert(END, f"Размер сжатого файла (вместе с информацией для распаковки): {compressed_file_size_str}\n")
+        self.text_editor.insert(END, f"Размер сжатого изображения: {compressed_data_size_str}\n")
         self.text_editor.insert(END, f"Размер информации для распаковки файла: {size_data_to_decompress_str}\n")
+        self.text_editor.insert(END, f"Размер сжатого файла (вместе с информацией для распаковки): {compressed_file_size_str}\n")
         self.text_editor.insert(END, "Степень сжатия файла: {:2.2f}%\n".format(compression_ratio))
         self.text_editor.insert(END, f"Файл успешно сжат ({method_name})\n", ("bold",))
         self.text_editor.update()
-        print(f"\nРазмер сжатого файла (вместе с информацией для распаковки): {compressed_file_size_str}")
+        print(f"\nРазмер сжатого изображения: {compressed_data_size_str}")
         print(f"\nРазмер информации для распаковки файла: {size_data_to_decompress_str}")
+        print(f"\nРазмер сжатого файла (вместе с информацией для распаковки): {compressed_file_size_str}")
         print("\nСтепень сжатия файла: {:2.2f}%".format(compression_ratio))
         print(f"{purple}\nФайл успешно сжат ({method_name}){base_color}")
 

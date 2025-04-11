@@ -50,7 +50,7 @@ class Huffman():
         self.text_editor.insert(END, f"Размер таблицы частот символов: {size_table}\n")
         self.text_editor.insert(
             END, 
-            "Максимальная частота символа: {} ({} байт(а) на сохранение частоты символа)) \n".format(
+            "Максимальная частота символа: {} ({} байт(а) на сохранение частоты символа) \n".format(
             max_frequency, frequency_size
         ))
         self.text_editor.insert(
