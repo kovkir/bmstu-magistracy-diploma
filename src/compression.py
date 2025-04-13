@@ -8,6 +8,7 @@ from tkinter.ttk import Progressbar
 from constants import CompressionMethods, BYTES_AMOUNT_PER_PIXEL
 from huffman import Huffman
 from lzw import LZW
+from comparison import plot_comparison_bar_chart
 from color import *
 
 
@@ -112,6 +113,12 @@ class Compression():
         print(f"\nРазмер сжатого файла (вместе с информацией для распаковки): {compressed_file_size_str}")
         print("\nСтепень сжатия файла: {:2.2f}%".format(compression_ratio))
         print(f"{purple}\nФайл успешно сжат ({method_name}){base_color}")
+
+        plot_comparison_bar_chart(
+            image_sizes=[100, len(compressed) / size * 100],
+            data_to_decompress_sises=[0, len(data_to_decompress) / size * 100],
+            method=method_name,
+        )
 
     def decompress(self, input_file_name: str, output_file_name: str) -> None:
         with open(input_file_name, "rb") as f:

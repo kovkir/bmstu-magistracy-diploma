@@ -1,0 +1,101 @@
+<mxfile host="65bd71144e">
+    <diagram id="tPg7lvVMtvuBfPQgrAko" name="Страница 1">
+        <mxGraphModel dx="1082" dy="788" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="43" style="edgeStyle=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;fontSize=12;endArrow=none;endFill=0;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="45" target="46" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="325" y="74.41000000000001" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="44" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;fontSize=12;endArrow=classic;endFill=1;entryX=0.486;entryY=-0.012;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="45" target="60" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="220" y="131.41" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="45" value="Начало" style="strokeWidth=1;html=1;shape=mxgraph.flowchart.terminator;whiteSpace=wrap;strokeColor=default;gradientColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="145" y="47.660000000000004" width="150" height="52.5" as="geometry"/>
+                </mxCell>
+                <mxCell id="46" value="" style="strokeWidth=1;html=1;shape=mxgraph.flowchart.annotation_2;align=left;labelPosition=right;pointerEvents=1;strokeColor=default;fontSize=13;gradientColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="309.5" y="28.37" width="50" height="91.09" as="geometry"/>
+                </mxCell>
+                <mxCell id="47" value="&lt;span style=&quot;font-size: 12px;&quot;&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;Гибридный метод сжатия&lt;/font&gt;&lt;/span&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=13;strokeWidth=1;" parent="1" vertex="1">
+                    <mxGeometry x="344.5" y="28.369999999999997" width="170" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="48" value="Вход:" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="344.5" y="57.120000000000005" width="50" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="49" value="&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;имя входного файла;&lt;/font&gt;&lt;div&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;имя выходного файла.&lt;/font&gt;&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="359.5" y="79.46000000000001" width="150" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="50" style="edgeStyle=none;html=1;exitX=0.487;exitY=0.99;exitDx=0;exitDy=0;fontSize=12;endArrow=classic;endFill=1;exitPerimeter=0;" parent="1" source="60" target="52" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="220" y="211.41" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="51" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;fontSize=12;endArrow=classic;endFill=1;entryX=0.49;entryY=0.013;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="52" edge="1" target="63">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="220" y="351.40999999999997" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="52" value="&lt;font&gt;&lt;font&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;Выполнить&lt;/font&gt;&lt;/span&gt;&lt;br style=&quot;font-size: 14px;&quot;&gt;&lt;/font&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;первичное сжатие изображения&lt;/font&gt;&lt;/span&gt;&lt;br style=&quot;font-size: 14px;&quot;&gt;&lt;span style=&quot;color: light-dark(rgb(0, 0, 0), rgb(237, 237, 237)); font-size: 14px;&quot;&gt;методом LZW&lt;/span&gt;&lt;/font&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;strokeColor=default;strokeWidth=1;fontSize=12;gradientColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="230" width="200" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="53" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;fontSize=12;endArrow=classic;endFill=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="61" target="64" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="222.5" y="665.0000000000001" as="sourcePoint"/>
+                        <mxPoint x="222.5" y="695.0000000000001" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="54" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=12;endArrow=classic;endFill=1;entryPerimeter=0;" parent="1" source="64" target="55" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="222.50000000000023" y="805.0000000000003" as="targetPoint"/>
+                        <mxPoint x="222.5" y="775.0000000000001" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="55" value="Конец" style="strokeWidth=1;html=1;shape=mxgraph.flowchart.terminator;whiteSpace=wrap;strokeColor=default;gradientColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="147.5" y="730.0000000000001" width="150" height="52.5" as="geometry"/>
+                </mxCell>
+                <mxCell id="60" value="&lt;span style=&quot;font-size: 14px;&quot;&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;Получить данные&amp;nbsp;&lt;/font&gt;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;сжимаемого изображения&amp;nbsp;&lt;/font&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;в виде байтовой строки&lt;/font&gt;&lt;/span&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=default;strokeWidth=1;fontSize=12;gradientColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="127.04" width="205" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="61" value="&lt;span style=&quot;font-size: 14px;&quot;&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;Выполнить повторное&lt;/font&gt; &lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;сжатие изображения&lt;/font&gt;&lt;/span&gt;&lt;br style=&quot;font-size: 14px;&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;методом&amp;nbsp;&lt;/font&gt;&lt;/span&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;Хаффмана&lt;/font&gt;&lt;/span&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;strokeColor=default;strokeWidth=1;fontSize=12;gradientColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="122.5" y="530" width="200" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="62" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;fontSize=14;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="63" edge="1" target="65">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="223" y="470" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="63" value="&lt;span style=&quot;font-size: 14px;&quot;&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;Найти таблицу &lt;/font&gt;&lt;br&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;частот символов&amp;nbsp;&lt;/font&gt;&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=default;strokeWidth=1;fontSize=12;gradientColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="329.99999999999994" width="205" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="64" value="&lt;font&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;Создать файл&lt;/font&gt;&lt;/span&gt;&lt;br style=&quot;font-size: 14px;&quot;&gt;&lt;span style=&quot;color: light-dark(rgb(0, 0, 0), rgb(237, 237, 237)); font-size: 14px;&quot;&gt;с сжатым&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;color: light-dark(rgb(0, 0, 0), rgb(237, 237, 237)); font-size: 14px;&quot;&gt;изображением&lt;/span&gt;&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=default;strokeWidth=1;fontSize=12;gradientColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="630.0000000000001" width="205" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="66" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="65" target="61" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="65" value="&lt;font&gt;&lt;span style=&quot;color: light-dark(rgb(0, 0, 0), rgb(237, 237, 237)); font-size: 14px;&quot;&gt;Построить дерево&lt;/span&gt;&lt;br style=&quot;font-size: 14px;&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;Хаффмана&lt;/font&gt;&lt;/span&gt;&lt;/font&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;strokeColor=default;strokeWidth=1;fontSize=12;gradientColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="122.5" y="430" width="200" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="68" style="edgeStyle=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;fontSize=12;endArrow=none;endFill=0;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" target="69" edge="1" source="55">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="300" y="760" as="sourcePoint"/>
+                        <mxPoint x="314.5" y="846.625" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="69" value="" style="strokeWidth=1;html=1;shape=mxgraph.flowchart.annotation_2;align=left;labelPosition=right;pointerEvents=1;strokeColor=default;fontSize=13;gradientColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="309.5" y="729.52" width="50" height="53.46" as="geometry"/>
+                </mxCell>
+                <mxCell id="70" value="Возвращает:" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="340" y="729.5199999999999" width="100" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="71" value="&lt;br&gt;сжатое изображение." style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="354.5" y="736.2499999999999" width="150" height="40" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

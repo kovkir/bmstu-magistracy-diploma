@@ -15,7 +15,7 @@ from tkinter import (
 from tkinter.ttk import Progressbar
 
 from compression import Compression
-from comparison import plot_graph
+from comparison import plot_comparison_graph
 from constants import *
 from color import *
 
@@ -291,7 +291,7 @@ class Window():
             fg = PURPLE_SUPER_DARK,
             highlightbackground = PURPLE, 
             highlightthickness = 30, 
-            command = lambda: plot_graph(IMAGE_PATHS, COMPRESSION_RATES),
+            command = lambda: plot_comparison_graph(IMAGE_PATHS, COMPRESSION_RATES),
         ).place(
             width = windowWidth * 0.24 - 4, 
             height = 31, 
