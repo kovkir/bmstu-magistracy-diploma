@@ -27,3 +27,9 @@ COMPRESSION_RATES = {
     CompressionMethods.HUFFMAN: [69.91, 71.59, 68.02, 67.77, 59.23],
     CompressionMethods.LZW: [83.01, 84.61, 77.67, 44.52, 40.84],
 }
+# кол-во информации для распаковки изображения в сжатом файле для каждого метода
+INFORMATION_TO_DECOMPRESS = {
+    CompressionMethods.HYBRID: [41.20, 41.81, 39.07, 33.50, 39.05],
+    CompressionMethods.HUFFMAN: [0.51, 0.72, 0.88, 0.73, 6.59],
+    CompressionMethods.LZW: [0.53, 0.77, 0.76, 0.25, 2.72],
+}

@@ -291,7 +291,7 @@ class Window():
             fg = PURPLE_SUPER_DARK,
             highlightbackground = PURPLE, 
             highlightthickness = 30, 
-            command = lambda: plot_comparison_graph(IMAGE_PATHS, COMPRESSION_RATES),
+            command = self.compareCompressionMethods
         ).place(
             width = windowWidth * 0.24 - 4, 
             height = 31, 
@@ -382,6 +382,24 @@ class Window():
             return
         
         return path
+
+    def compareCompressionMethods(self) -> None:
+        plot_comparison_graph(
+            image_paths=IMAGE_PATHS, 
+            compression_rates=COMPRESSION_RATES,
+            title="Сравнение методов по степени сжатия изображений",
+            y_label="Степень сжатия (%)",
+            x_label="Изображения (названия)",
+            y_lim=105,
+        )
+        plot_comparison_graph(
+            image_paths=IMAGE_PATHS, 
+            compression_rates=INFORMATION_TO_DECOMPRESS,
+            title="Сравнение методов по размеру данных для распаковки изображений",
+            y_label="Кол-во информации для распаковки\nизображения в сжатом файле (%)",
+            x_label="Изображения (названия)",
+            y_lim=44,
+        )
 
     def aboutProgram(self):
         messagebox.showinfo(
