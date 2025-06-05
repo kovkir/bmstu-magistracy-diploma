@@ -366,7 +366,7 @@ class Window():
         if not os.path.exists(path) or not os.path.isdir(path):
             messagebox.showwarning(
                 "Ошибка",
-                "Директории с таким имененм не существует!"
+                "Директории с таким именем не существует!"
             )
             return
         
@@ -377,7 +377,7 @@ class Window():
         if not os.path.exists(path) or not os.path.isfile(path):
             messagebox.showwarning(
                 "Ошибка",
-                "Файла с таким имененм не существует!"
+                "Файла с таким именем не существует!"
             )
             return
         
