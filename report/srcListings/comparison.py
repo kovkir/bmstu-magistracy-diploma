@@ -71,7 +71,7 @@ def plot_comparison_bar_chart(
 ) -> None:
     fig, ax = plt.subplots(figsize=(5.5, 6))
     fig.canvas.manager.set_window_title("Сравнение значений")
-    plt.title("График сравнения размеров сжатого\n изображения с исходным")
+    plt.title("Диаграмма сравнения размеров сжатого\n изображения с исходным")
     
     labels = ["Исходное изображение", f"Сжатое изображение\n({method})"]
 
