@@ -157,14 +157,14 @@ class Window():
         self.methodVar = IntVar()
 
         Radiobutton(
-            text = "Разработанный гибридный метод", 
+            text = "Гибридный метод", 
             variable = self.methodVar, value = CompressionMethods.HYBRID.value,
             font = ("Arial", 16), 
             bg = PURPLE_LIGHT, 
             fg = PURPLE_SUPER_DARK,
             anchor = "w",
         ).place(
-            width = windowWidth * 0.35, 
+            width = windowWidth * 0.3, 
             height = 30, 
             x = windowWidth * 0.1, 
             y = 230,
@@ -177,9 +177,9 @@ class Window():
             fg = PURPLE_SUPER_DARK,
             anchor = "w",
         ).place(
-            width = windowWidth * 0.25, 
+            width = windowWidth * 0.3, 
             height = 30, 
-            x = windowWidth * 0.45,
+            x = windowWidth * 0.4,
             y = 230,
         )
         Radiobutton(
@@ -261,7 +261,7 @@ class Window():
             y = windowHeight - 45,
         )
         Button(
-            text = "Сжать и рапаковать", 
+            text = "Сжать и распаковать", 
             font = ("Arial", 16), 
             fg = PURPLE_SUPER_DARK,
             highlightbackground = PURPLE, 

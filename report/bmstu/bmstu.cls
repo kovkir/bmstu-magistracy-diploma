@@ -158,21 +158,21 @@
 	arc=0mm,
 	% тонкая рамка
 	boxrule=1pt,
-    listing only,
+		listing only,
 	listing file={../srcListings/#2},
 	% стиль листинга
-    listing engine=minted,
-    minted language=#1,
-    minted options = {
-        linenos,
-        breaklines=true,
-        breakbefore=.,
-        fontsize=\footnotesize\ttfamily,
-        numbersep=7mm,
-        firstnumber=1,
-        % для firstline, lastline и др.
-        #3
-    },
+		listing engine=minted,
+		minted language=#1,
+		minted options = {
+				linenos,
+				breaklines=true,
+				breakbefore=.,
+				fontsize=\footnotesize\ttfamily,
+				numbersep=7mm,
+				firstnumber=1,
+				% для firstline, lastline и др.
+				#3
+		},
 	colback=white,
 	colframe=black,
 	breakable,
@@ -189,13 +189,13 @@
 	},
 	enlarge top at break by = 0.8cm,
 	overlay middle={
-        \draw[line width=.5pt] (frame.south west)--(frame.south east);
-        \draw[line width=.5pt] (frame.north west)--(frame.north east);
-        \node[anchor=south west] at (frame.north west) {Продолжение листинга \thetcbcounter};
+				\draw[line width=.5pt] (frame.south west)--(frame.south east);
+				\draw[line width=.5pt] (frame.north west)--(frame.north east);
+				\node[anchor=south west] at (frame.north west) {Продолжение листинга \thetcbcounter};
 	},
 	overlay last={
-        \draw[line width=.5pt] (frame.north west)--(frame.north east);
-        \node[anchor=south west] at (frame.north west) {Продолжение листинга \thetcbcounter};
+				\draw[line width=.5pt] (frame.north west)--(frame.north east);
+				\node[anchor=south west] at (frame.north west) {Продолжение листинга \thetcbcounter};
 	},
 	label=lst:#5,
 	#6

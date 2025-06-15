@@ -261,7 +261,7 @@ class Window():
             y = windowHeight - 45,
         )
         Button(
-            text = "Сжать и рапаковать", 
+            text = "Сжать и распаковать", 
             font = ("Arial", 16), 
             fg = PURPLE_SUPER_DARK,
             highlightbackground = PURPLE, 

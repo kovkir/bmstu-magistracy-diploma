@@ -14,7 +14,7 @@ from color import *
 
 class Compression():
     compression_methods_names = {
-        CompressionMethods.HYBRID: "LZW + Хаффман",
+        CompressionMethods.HYBRID: "Гибридный метод",
         CompressionMethods.HUFFMAN: "Хаффман",
         CompressionMethods.LZW: "LZW",
     }

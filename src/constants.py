@@ -2,7 +2,7 @@ from enum import Enum
 
 # размеры окна приложения
 WINDOW_WIDTH  = 1100
-WINDOW_HEIGHT = 660
+WINDOW_HEIGHT = 660 # 1020
 
 # количество байт на пиксель
 BYTES_AMOUNT_PER_PIXEL = 3
