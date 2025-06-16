@@ -25,7 +25,8 @@ def plot_comparison_graph(
         [x - bar_width for x in x_positions], 
         compression_rates[CompressionMethods.LZW], 
         width=bar_width,
-        label='Метод LZW'
+        label='Метод LZW',
+        hatch="\\"
     )
     ax.bar(
         x_positions, 
@@ -37,7 +38,8 @@ def plot_comparison_graph(
         [x + bar_width for x in x_positions], 
         compression_rates[CompressionMethods.HUFFMAN], 
         width=bar_width,
-        label='Метод Хаффмана'
+        label='Метод Хаффмана',
+        hatch="/"
     )
 
     ax.grid(True, axis='y', alpha=0.6, linestyle='--')
