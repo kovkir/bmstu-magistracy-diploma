@@ -157,7 +157,7 @@ class Window():
         self.methodVar = IntVar()
 
         Radiobutton(
-            text = "Разработанный гибридный метод", 
+            text = "Разработанный метод", 
             variable = self.methodVar, value = CompressionMethods.HYBRID.value,
             font = ("Arial", 16), 
             bg = PURPLE_LIGHT, 

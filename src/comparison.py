@@ -32,7 +32,7 @@ def plot_comparison_graph(
         x_positions, 
         compression_rates[CompressionMethods.HYBRID], 
         width=bar_width,
-        label='Гибридный метод'
+        label='Разработанный метод'
     )
     ax.bar(
         [x + bar_width for x in x_positions], 

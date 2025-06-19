@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="ZWdekoGJzTY7XvXSQLcq" name="Страница 1">
-        <mxGraphModel dx="1144" dy="767" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="1153" dy="797" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -173,23 +173,32 @@
                 <mxCell id="234" value="Цветовая&amp;nbsp;&lt;div&gt;&lt;font&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;модель&amp;nbsp;&lt;/font&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;RGB&lt;/font&gt;&lt;/span&gt;&lt;/font&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" parent="1" vertex="1">
                     <mxGeometry x="234" y="35" width="110" height="50" as="geometry"/>
                 </mxCell>
-                <mxCell id="235" style="edgeStyle=none;html=1;fontSize=14;endArrow=none;endFill=0;startArrow=classic;startFill=1;exitX=0.132;exitY=1.001;exitDx=0;exitDy=0;exitPerimeter=0;jumpStyle=arc;" parent="1" source="20" edge="1">
-                    <mxGeometry relative="1" as="geometry">
-                        <mxPoint x="456" y="480" as="targetPoint"/>
-                        <mxPoint x="460" y="410" as="sourcePoint"/>
-                    </mxGeometry>
-                </mxCell>
                 <mxCell id="236" style="edgeStyle=none;html=1;fontSize=14;startArrow=classic;startFill=1;endArrow=none;endFill=0;exitX=0.25;exitY=1;exitDx=0;exitDy=0;jumpStyle=arc;" parent="1" edge="1">
                     <mxGeometry relative="1" as="geometry">
-                        <mxPoint x="491" y="480" as="targetPoint"/>
-                        <mxPoint x="491" y="295" as="sourcePoint"/>
+                        <mxPoint x="482" y="470" as="targetPoint"/>
+                        <mxPoint x="482" y="295" as="sourcePoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="237" value="Алгоритм &lt;br&gt;сжатия&amp;nbsp;&lt;div&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;LZW&lt;/font&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" parent="1" vertex="1">
-                    <mxGeometry x="369" y="410" width="90" height="60" as="geometry"/>
+                <mxCell id="239" value="Алгоритм &lt;br&gt;сжатия&amp;nbsp;&lt;div&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;LZW&lt;/font&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+                    <mxGeometry x="471" y="35" width="90" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="238" value="Алгоритм&lt;br&gt;сжатия&amp;nbsp;&lt;div&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;Хаффмана&lt;/font&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" parent="1" vertex="1">
-                    <mxGeometry x="490" y="410" width="100" height="60" as="geometry"/>
+                <mxCell id="240" value="Алгоритм&lt;br&gt;сжатия&amp;nbsp;&lt;div&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;Хаффмана&lt;/font&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+                    <mxGeometry x="561" y="35" width="100" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="241" style="edgeStyle=none;html=1;fontSize=14;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" target="20">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="478.9999999999998" y="125.00000000000011" as="targetPoint"/>
+                        <mxPoint x="479" y="35" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="242" style="edgeStyle=none;html=1;fontSize=14;entryX=0.694;entryY=-0.005;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" target="20">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="570" y="200" as="targetPoint"/>
+                        <mxPoint x="568.38" y="35" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="243" value="&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;библиотека для работы&lt;br&gt;с массивами битов&lt;br&gt;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;bitarray&lt;/font&gt;&lt;/span&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+                    <mxGeometry x="305" y="409" width="180" height="60" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
